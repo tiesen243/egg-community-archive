@@ -1,25 +1,54 @@
-import NextAuth, { NextAuthConfig } from 'next-auth'
+import bcrypt from 'bcryptjs'
+import NextAuth, { type DefaultSession, type NextAuthConfig } from 'next-auth'
+import credentials from 'next-auth/providers/credentials'
 
-import Credential from 'next-auth/providers/credentials'
+import db from '@/prisma'
+import type { User } from '@prisma/client'
 
-const authConfig = {
+declare module 'next-auth' {
+  interface Session {
+    user: User & DefaultSession['user']
+  }
+}
+
+const authOptions = {
   providers: [
-    Credential({
+    credentials({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      authorize: async (_credentials) => {
-        const user = { name: 'J Smith', email: 'dsads@dasdas.da' }
-        if (user) {
-          return Promise.resolve(user)
-        } else {
-          return Promise.resolve(null)
-        }
+
+      authorize: async (credentials) => {
+        if (!credentials.email || !credentials.password) return null
+
+        const user = await db.user.findUnique({ where: { email: String(credentials.email) } })
+        if (!user) throw new Error('No user found')
+
+        const isValid = bcrypt.compareSync(String(credentials.password), user.password)
+        if (!isValid) throw new Error('Password is incorrect')
+
+        return user
       },
     }),
   ],
+  session: { strategy: 'jwt' },
+  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/signin',
+  },
+  callbacks: {
+    jwt: async ({ token, user }) => {
+      if (user) token.user = user
+      return token
+    },
+    session: async ({ session, token }) => {
+      if (token) session.user = token.user as any
+      return session
+    },
+  },
 } satisfies NextAuthConfig
 
 export const {
@@ -27,4 +56,4 @@ export const {
   auth,
   signIn,
   signOut,
-} = NextAuth(authConfig)
+} = NextAuth(authOptions)
