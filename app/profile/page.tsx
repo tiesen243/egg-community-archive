@@ -7,6 +7,9 @@ import { auth, signOut } from '@/server/auth'
 import type { NextPage } from 'next'
 import { redirect } from 'next/navigation'
 import UpdateDialog from './_update'
+import { MoreHorizontalIcon } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import PostMenu from '@/components/post-menu'
 
 const Page: NextPage = async () => {
   const session = await auth()
@@ -45,12 +48,17 @@ const Page: NextPage = async () => {
         </div>
       </section>
 
-      <section className="space-y-4 md:col-span-7">
+      <section className="md:col-span-7">
         <h2 className="text-xl font-bold">All your posts</h2>
 
-        {userPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
+        <ul className="mt-4 space-y-4">
+          {userPosts.map((post) => (
+            <li key={post.id}>
+              <PostMenu post={post} />
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
       </section>
     </main>
   )

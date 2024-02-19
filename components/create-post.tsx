@@ -22,25 +22,39 @@ const CreatePost: React.FC<{ user: User }> = ({ user }) => {
   return (
     <Card className="bg-secondary/50">
       <form
-        className="flex items-center gap-4 p-4"
+        className="space-y-4 p-4"
         action={(formData: FormData) => {
           const content = String(formData.get('content'))
-          mutate({ content })
+          const image = String(formData.get('image'))
+          mutate({ content, image })
         }}
       >
-        <UserAvatar user={user} />
+        <div className="flex gap-4">
+          <UserAvatar user={user} />
+          <FormField
+            name="content"
+            placeholder="What's on your mind?"
+            className="flex-grow"
+            inputClassName="bg-secondary"
+            message={String(error?.data?.zodError?.fieldErrors.content ?? '')}
+            multiline
+          />
+        </div>
 
-        <FormField
-          name="content"
-          placeholder="What's on your mind?"
-          className="flex-grow"
-          inputClassName="rounded-full bg-secondary"
-          message={String(error?.data?.zodError?.fieldErrors.content ?? '')}
-        />
+        <div className="flex gap-2">
+          <FormField
+            type="url"
+            name="image"
+            placeholder="Image URL"
+            className="flex-grow"
+            inputClassName="rounded-full bg-secondary"
+            message={String(error?.data?.zodError?.fieldErrors.image ?? '')}
+          />
 
-        <Button type="submit" className="rounded-full" size="icon">
-          <SendHorizonalIcon />
-        </Button>
+          <Button type="submit" className="rounded-full" size="icon">
+            <SendHorizonalIcon />
+          </Button>
+        </div>
       </form>
     </Card>
   )

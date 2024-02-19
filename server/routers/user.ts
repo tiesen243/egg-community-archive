@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 
 import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
 import { registerSchema, updateSchema } from '@/server/schemas/user'
+import { TRPCError } from '@trpc/server'
 
 export const userRouter = createRouter({
   // [POST]
@@ -11,7 +12,7 @@ export const userRouter = createRouter({
         email: input.email,
       },
     })
-    if (isExistingUser) throw new Error('User already exists')
+    if (isExistingUser) throw new TRPCError({ message: 'User already exists', code: 'CONFLICT' })
 
     const salt = await bcrypt.genSalt(12)
     const user = await ctx.db.user.create({
@@ -22,7 +23,7 @@ export const userRouter = createRouter({
       },
     })
 
-    if (!user) throw new Error('Failed to create user')
+    if (!user) throw new TRPCError({ message: 'Failed to create user', code: 'INTERNAL_SERVER_ERROR' })
 
     return {
       message: 'User created successfully',
@@ -31,13 +32,9 @@ export const userRouter = createRouter({
 
   // [PATCH]
   update: protectedProcedure.input(updateSchema).mutation(async ({ ctx, input }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { id: ctx.session.user.id },
-    })
-    if (!user) throw new Error('You are not authorized to perform this action')
-
+    const { user } = ctx.session
     const updatedUser = await ctx.db.user.update({
-      where: { id: ctx.session.user.id },
+      where: { id: user.id },
       data: {
         name: input.name ? input.name : user.name,
         image: input.image ? input.image : user.image,
@@ -45,7 +42,7 @@ export const userRouter = createRouter({
       },
     })
 
-    if (!updatedUser) throw new Error('Failed to update user')
+    if (!updatedUser) throw new TRPCError({ message: 'Failed to update user', code: 'INTERNAL_SERVER_ERROR' })
 
     return {
       message: 'User updated successfully',

@@ -1,8 +1,9 @@
 import { Post, User } from '@prisma/client'
-import { Card, CardContent, CardHeader } from './ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
 import UserAvatar from './user-avatar'
 import { Skeleton } from './ui/skeleton'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface PostCardProps {
   post: Post & {
@@ -12,7 +13,7 @@ interface PostCardProps {
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => (
   <Link href={`/post/${post.id}`} passHref legacyBehavior>
-    <Card className="cursor-pointer transition-colors ease-linear hover:bg-secondary">
+    <Card className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary">
       <CardHeader className="flex-row items-center gap-2 space-y-0">
         <UserAvatar user={post.author} />
         <div>
@@ -20,7 +21,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
           <span className="text-muted-foreground">{post.createdAt.toDateString()}</span>
         </div>
       </CardHeader>
-      <CardContent className="truncate-to-4-lines">{post.content}</CardContent>
+      <CardContent className="truncate-to-4-lines m-6 mt-0 p-0">{post.content}</CardContent>
+      {post.image && (
+        <CardFooter className="aspect-video">
+          <Image src={post.image} alt={post.id} className="rounded" fill />
+        </CardFooter>
+      )}
     </Card>
   </Link>
 )

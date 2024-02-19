@@ -8,7 +8,7 @@ const Page: NextPage = () => {
   const { data, isLoading } = api.post.getAll.useQuery()
   if (isLoading)
     return (
-      <main className="container flex-grow space-y-4">
+      <main className="container max-w-screen-md flex-grow space-y-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
@@ -16,7 +16,9 @@ const Page: NextPage = () => {
     )
 
   return (
-    <main className="container flex-grow space-y-4">{data?.map((post) => <PostCard key={post.id} post={post} />)}</main>
+    <main className="container max-w-screen-md flex-grow space-y-4">
+      {data?.map((post) => <PostCard key={post.id} post={post} />)}
+    </main>
   )
 }
 
