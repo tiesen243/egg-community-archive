@@ -1,15 +1,12 @@
 import CreatePost from '@/components/create-post'
 import { PostCard } from '@/components/post-card'
-import { Button } from '@/components/ui/button'
+import PostMenu from '@/components/post-menu'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import { auth, signOut } from '@/server/auth'
+import { auth } from '@/server/auth'
 import type { NextPage } from 'next'
 import { redirect } from 'next/navigation'
 import UpdateDialog from './_update'
-import { MoreHorizontalIcon } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import PostMenu from '@/components/post-menu'
 
 const Page: NextPage = async () => {
   const session = await auth()
@@ -32,20 +29,7 @@ const Page: NextPage = async () => {
 
         <CreatePost user={session.user} />
 
-        <div className="flex items-center justify-center gap-4">
-          <UpdateDialog user={session.user} />
-
-          <form
-            action={async () => {
-              'use server'
-              await signOut()
-            }}
-          >
-            <Button type="submit" variant="destructive">
-              Sign out
-            </Button>
-          </form>
-        </div>
+        <UpdateDialog user={session.user} />
       </section>
 
       <section className="md:col-span-7">

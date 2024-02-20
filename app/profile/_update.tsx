@@ -1,7 +1,6 @@
 'use client'
 
 import { User } from 'next-auth'
-import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
@@ -25,9 +24,8 @@ const UpdateDialog: React.FC<{ user: User }> = ({ user }) => {
     },
     onSuccess: () => {
       toast.success('Profile updated!', {
-        description: 'You will be logged out to see the changes.',
+        description: 'Refresh the page to see the changes.',
       })
-      signOut()
     },
   })
   return (
