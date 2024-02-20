@@ -3,33 +3,39 @@ import { PostCard } from '@/components/post-card'
 import PostMenu from '@/components/post-menu'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import { auth } from '@/server/auth'
 import type { NextPage } from 'next'
-import { redirect } from 'next/navigation'
 import UpdateDialog from './_update'
+import { auth } from '@/server/auth'
 
-const Page: NextPage = async () => {
+interface Props {
+  params: { id: string }
+}
+
+const Page: NextPage<Props> = async ({ params }) => {
   const session = await auth()
-  if (!session) redirect('/auth/signin')
-
-  const userPosts = await api.post.getByUser.query()
+  const user = await api.user.getById.query(params.id)
+  const userPosts = await api.post.getByUser.query(params.id)
 
   return (
     <main className="container grid flex-grow grid-cols-1 gap-4 md:grid-cols-12">
       <section className="space-y-4 md:col-span-5">
         <div className="flex items-center gap-2">
-          <UserAvatar user={session.user} />
+          <UserAvatar user={user} />
           <div>
-            <p className="ml-2">{session.user.name}</p>
-            <p className="ml-2">{session.user.email}</p>
+            <p className="ml-2">{user.name}</p>
+            <p className="ml-2">{user.email}</p>
           </div>
         </div>
 
-        <blockquote>{session.user.bio}</blockquote>
+        <blockquote>{user.bio}</blockquote>
 
-        <CreatePost user={session.user} />
+        {session?.user?.id === user.id && (
+          <>
+            <CreatePost user={user} />
 
-        <UpdateDialog user={session.user} />
+            <UpdateDialog user={user} />
+          </>
+        )}
       </section>
 
       <section className="md:col-span-7">
@@ -38,7 +44,7 @@ const Page: NextPage = async () => {
         <ul className="mt-4 space-y-4">
           {userPosts.map((post) => (
             <li key={post.id}>
-              <PostMenu post={post} />
+              {session?.user?.id === user.id && <PostMenu post={post} />}
               <PostCard post={post} />
             </li>
           ))}

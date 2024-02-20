@@ -1,10 +1,10 @@
 import Link from 'next/link'
+import { CircleUserRoundIcon, LogOutIcon } from 'lucide-react'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { auth, signOut } from '@/server/auth'
-import { CircleUserRoundIcon, LogOutIcon } from 'lucide-react'
+import UserAvatar from '@/components/user-avatar'
 
 export const Auth: React.FC = async () => {
   const session = await auth()
@@ -19,15 +19,12 @@ export const Auth: React.FC = async () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
-          <AvatarImage src={session.user.image ?? ''} alt={session.user.name ?? ''} />
-          <AvatarFallback>{session.user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar user={session.user} />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link href={`/users/${session.user.id}`}>
             <CircleUserRoundIcon className="mr-2" /> {session.user.name}
           </Link>
         </DropdownMenuItem>

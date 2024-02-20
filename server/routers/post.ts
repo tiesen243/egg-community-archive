@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server'
 import { revalidatePath } from 'next/cache'
 import { commentSchema, createSchema, getByIdSchema, updateSchema } from '@/server/schemas/post'
 import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
+import { z } from 'zod'
 
 export const postRouter = createRouter({
   // [GET]
@@ -9,9 +10,9 @@ export const postRouter = createRouter({
     return ctx.db.post.findMany({ include: { author: true }, orderBy: { createdAt: 'desc' } })
   }),
 
-  getByUser: protectedProcedure.query(async ({ ctx }) => {
+  getByUser: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     return ctx.db.post.findMany({
-      where: { authorId: ctx.session.user.id },
+      where: { authorId: input },
       include: { author: true },
       orderBy: { createdAt: 'desc' },
     })

@@ -24,7 +24,7 @@ const Page: NextPage = () => {
   }
   return (
     <main className="container grid flex-grow place-items-center">
-      <Card className="grid w-full grid-cols-3">
+      <Card className="grid w-full grid-cols-1 md:grid-cols-3">
         <div className="col-span-2">
           <FormHeader
             title="Register"
@@ -48,7 +48,7 @@ const Page: NextPage = () => {
             <Footer />
           </form>
         </div>
-        <div className="col-span-1 aspect-square">
+        <div className="col-span-1 hidden aspect-square md:block">
           <Image src="/auth.gif" alt="Auth" fill />
         </div>
       </Card>

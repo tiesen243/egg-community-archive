@@ -12,11 +12,11 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    user: User & DefaultSession['user']
-  }
-}
+/* declare module 'next-auth/jwt' { */
+/*   interface JWT { */
+/*     user: User & DefaultSession['user'] */
+/*   } */
+/* } */
 
 const authOptions = {
   providers: [
@@ -50,7 +50,7 @@ const authOptions = {
     jwt: async ({ token, user }) => {
       if (user) token.user = user as User
 
-      if (token.user) token.user = (await db.user.findUnique({ where: { id: token.user.id } })) as User
+      /* if (token.user) token.user = (await db.user.findUnique({ where: { id: token.user.id } })) as User */
 
       return token
     },

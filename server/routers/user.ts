@@ -3,8 +3,20 @@ import bcrypt from 'bcryptjs'
 import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
 import { registerSchema, updateSchema } from '@/server/schemas/user'
 import { TRPCError } from '@trpc/server'
+import { z } from 'zod'
 
 export const userRouter = createRouter({
+  // [GET]
+  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: input },
+    })
+
+    if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
+
+    return user
+  }),
+
   // [POST]
   register: publicProcedure.input(registerSchema).mutation(async ({ ctx, input }) => {
     const isExistingUser = await ctx.db.user.findUnique({
