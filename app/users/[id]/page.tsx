@@ -3,12 +3,33 @@ import { PostCard } from '@/components/post-card'
 import PostMenu from '@/components/post-menu'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import type { NextPage } from 'next'
+import type { Metadata, NextPage, ResolvingMetadata } from 'next'
 import UpdateDialog from './_update'
 import { auth } from '@/server/auth'
 
 interface Props {
   params: { id: string }
+}
+
+export const generateMetadata = async ({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
+  const user = await api.user.getById.query(params.id)
+  if (!user) return { title: 'Post not found' }
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: user.name,
+    description: user.bio,
+    openGraph: {
+      title: user.name,
+      description: user.bio ?? '',
+      images: [...(user.image ? [{ url: user.image }] : []), ...previousImages],
+    },
+    twitter: {
+      title: user.name,
+      description: user.bio ?? '',
+      images: [...(user.image ? [{ url: user.image }] : []), ...previousImages],
+    },
+  }
 }
 
 const Page: NextPage<Props> = async ({ params }) => {

@@ -3,12 +3,34 @@ import { Card, CardContent, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import type { NextPage } from 'next'
+import type { Metadata, NextPage, ResolvingMetadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface Props {
   params: { id: string }
+}
+
+export const generateMetadata = async ({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
+  const postDetail = await api.post.getById.query({ id: params.id })
+  if (!postDetail) return { title: 'Post not found' }
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: postDetail.content.slice(0, 20),
+    description: postDetail.content,
+    openGraph: {
+      title: postDetail.content.slice(0, 20),
+      description: postDetail.content,
+      images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
+    },
+    twitter: {
+      title: postDetail.content.slice(0, 20),
+      description: postDetail.content,
+      images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
+    },
+  }
 }
 
 const Page: NextPage<Props> = async ({ params }) => {
@@ -18,13 +40,13 @@ const Page: NextPage<Props> = async ({ params }) => {
 
     return (
       <main className="container max-w-screen-md flex-grow">
-        <div className="flex items-center gap-2">
+        <Link href={`/users/${postDetail.authorId}`} className="flex items-center gap-2">
           <UserAvatar user={postDetail.author} />
           <div>
             <p>{postDetail.author.name}</p>
             <span className="text-muted-foreground">{postDetail.createdAt.toDateString()}</span>
           </div>
-        </div>
+        </Link>
 
         <Separator className="my-4" />
 
