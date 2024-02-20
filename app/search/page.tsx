@@ -20,7 +20,10 @@ const Page: NextPage<Props> = async ({ searchParams }) => {
           <section className="space-y-4">
             <h2 className="text-3xl font-bold">Users</h2>
             {result.users.map((user) => (
-              <Card className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary">
+              <Card
+                key={user.id}
+                className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary"
+              >
                 <Link href={`/users/${user.id}`} className="flex items-center gap-4 p-6">
                   <UserAvatar user={user} />
                   {user.name}
