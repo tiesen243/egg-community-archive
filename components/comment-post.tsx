@@ -14,8 +14,6 @@ const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
     onSuccess: () => toast.success('Comment added'),
   })
 
-  console.log({ error, isLoading })
-
   return (
     <form
       className="flex gap-2"
