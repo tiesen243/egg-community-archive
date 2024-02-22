@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: siteConfig.openGraph,
   twitter: siteConfig.twitter,
   alternates: siteConfig.alternates,
-  manifest: `${siteConfig.alternates.canonical}/manifest.webmanifest`,
+  manifest: `${siteConfig.metadataBase}/manifest.webmanifest`,
 }
 export const viewport: Viewport = {
   themeColor: [

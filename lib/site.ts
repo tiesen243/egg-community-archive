@@ -1,7 +1,10 @@
 export type SiteConfig = typeof siteConfig
 
+export const baseUrl =
+  process.env.NODE_ENV === 'production' ? 'https://egg-community.vercel.app' : 'http://localhost:3000'
+
 export const siteConfig = {
-  metadataBase: new URL('https://egg-community.vercel.app/'),
+  metadataBase: new URL(baseUrl),
   title: {
     default: 'Egg Community',
     template: '%s | Egg Community',
@@ -18,7 +21,7 @@ export const siteConfig = {
   openGraph: {
     type: 'website',
     locale: 'vi_VN',
-    url: 'https://egg-community.vercel.app/',
+    url: baseUrl,
     title: {
       default: 'Egg Community',
       template: '%s | Egg Community',
@@ -38,6 +41,6 @@ export const siteConfig = {
     creatorId: '@tiesen243',
   },
   alternates: {
-    canonical: 'https://egg-community.vercel.app/',
+    canonical: baseUrl,
   },
 }

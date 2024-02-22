@@ -1,4 +1,4 @@
-const baseUrl = process.env.NODE_ENV === 'production' ? process.env.VERCEL_URL : 'http://localhost:3000'
+import { baseUrl } from '@/lib/site'
 
 export default function robots() {
   return {
