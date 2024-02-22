@@ -42,9 +42,9 @@ const Page: NextPage<Props> = async ({ params }) => {
       <section className="space-y-4 md:col-span-5">
         <div className="flex items-center gap-2">
           <UserAvatar user={user} />
-          <div>
-            <p className="ml-2">{user.name}</p>
-            <p className="ml-2">{user.email}</p>
+          <div className="ml-2">
+            <p>{user.name}</p>
+            <p className="text-muted-foreground">{user.createdAt.toDateString()}</p>
           </div>
         </div>
 
