@@ -96,7 +96,7 @@ export const postRouter = createRouter({
 
     const updatedComment = await ctx.db.comment.update({
       where: { id: input.id },
-      data: { content: input.content },
+      data: { content: input.comment },
     })
 
     if (!updatedComment) throw new TRPCError({ message: 'Failed to update comment', code: 'INTERNAL_SERVER_ERROR' })

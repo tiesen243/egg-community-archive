@@ -25,6 +25,10 @@ const CommentMenu: React.FC<Props> = async ({ comment }) => {
         </dropdownMenu.DropdownMenuTrigger>
 
         <dropdownMenu.DropdownMenuContent>
+          <DialogTrigger asChild>
+            <dropdownMenu.DropdownMenuItem>Edit Comment</dropdownMenu.DropdownMenuItem>
+          </DialogTrigger>
+
           <dropdownMenu.DropdownMenuItem asChild>
             <form
               action={async () => {
@@ -32,13 +36,9 @@ const CommentMenu: React.FC<Props> = async ({ comment }) => {
                 await api.post.deleteComment.mutate(comment.id)
               }}
             >
-              <button type="submit">Delete</button>
+              <button type="submit">Delete Comment</button>
             </form>
           </dropdownMenu.DropdownMenuItem>
-
-          <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem>Edit</dropdownMenu.DropdownMenuItem>
-          </DialogTrigger>
         </dropdownMenu.DropdownMenuContent>
       </dropdownMenu.DropdownMenu>
 

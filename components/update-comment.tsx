@@ -1,7 +1,11 @@
+'use client'
+
 import * as dialog from '@/components/ui/dialog'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
-import { api } from '@/lib/trpc/server'
+import { api } from '@/lib/trpc/client'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface Props {
   id: string
@@ -9,6 +13,16 @@ interface Props {
 }
 
 const UpdateComment: React.FC<Props> = ({ id, content }) => {
+  const { refresh } = useRouter()
+  const { mutate, error, isLoading } = api.post.updateComment.useMutation({
+    onError: (err) => {
+      if (!err.data?.zodError) toast.error(err.message)
+    },
+    onSuccess: () => {
+      refresh()
+    },
+  })
+
   return (
     <dialog.DialogContent>
       <dialog.DialogHeader>
@@ -16,17 +30,23 @@ const UpdateComment: React.FC<Props> = ({ id, content }) => {
       </dialog.DialogHeader>
 
       <form
-        action={async (formData: FormData) => {
-          'use server'
-          const content = String(formData.get('content'))
-          await api.post.updateComment.mutate({ id, content })
+        action={(formData: FormData) => {
+          const comment = String(formData.get('comment'))
+          mutate({ id, comment })
         }}
         className="space-y-4"
       >
-        <FormField name="content" type="text" defaultValue={content} />
+        <FormField
+          name="comment"
+          type="text"
+          defaultValue={content}
+          message={String(error?.data?.zodError?.fieldErrors?.comment ?? '')}
+        />
 
         <dialog.DialogFooter>
-          <Button type="submit">Update</Button>
+          <Button type="submit" disabled={isLoading}>
+            Update
+          </Button>
         </dialog.DialogFooter>
       </form>
     </dialog.DialogContent>

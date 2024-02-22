@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
 import CommentMenu from '@/components/comment-menu'
+import { auth } from '@/server/auth'
 
 interface Props {
   params: { id: string }
@@ -37,6 +38,8 @@ export const generateMetadata = async ({ params }: Props, parent: ResolvingMetad
 
 const Page: NextPage<Props> = async ({ params }) => {
   try {
+    const session = await auth()
+
     const postDetail = await api.post.getById.query(params.id)
     if (!postDetail) throw new Error('Post not found')
 
