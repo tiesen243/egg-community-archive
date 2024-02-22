@@ -39,15 +39,12 @@ export const userRouter = createRouter({
 
     await fetch(String(process.env.EMAIL_SERVER ?? ''), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: 'Egg Community',
         to: input.email,
         reply_to: 'ttien56906@gmail.com',
         subject: 'Welcome to Egg Community',
-        text: `Welcome, ${input.name}!
-               We are excited to have you join our community. If you have any questions, feel free to reach out to us at https://egg-community.vercel.app 
-              `,
+        message: `Hi ${input.name}, your account has been created successfully! Thanks for joining Egg Community! We're excited to have you on board. If you have any questions, feel free to reach out to us at`,
       }),
     })
 
