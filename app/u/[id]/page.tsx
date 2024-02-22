@@ -44,7 +44,7 @@ const Page: NextPage<Props> = async ({ params }) => {
           <UserAvatar user={user} />
           <div className="ml-2">
             <p>{user.name}</p>
-            <p className="text-muted-foreground">{user.createdAt.toDateString()}</p>
+            <p className="text-muted-foreground">Joined at {user.createdAt.toDateString()}</p>
           </div>
         </div>
 

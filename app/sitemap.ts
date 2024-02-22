@@ -10,7 +10,7 @@ interface Route {
 const baseUrl = process.env.NODE_ENV === 'production' ? siteConfig.alternates.canonical : 'http://localhost:3000'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const routesMap = [''].map((route) => ({
+  const routesMap = ['', 'search', 'auth/register', 'auth/signin'].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
   }))
