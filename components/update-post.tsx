@@ -1,5 +1,7 @@
+'use client'
+
 import { Post } from '@prisma/client'
-import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import * as dialog from '@/components/ui/dialog'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/trpc/client'
@@ -18,11 +20,11 @@ const UpdatePost: React.FC<{ post: Post }> = ({ post }) => {
     onSuccess: () => toast.success('Post updated'),
   })
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Edit post</DialogTitle>
-        <DialogDescription>Update your post</DialogDescription>
-      </DialogHeader>
+    <dialog.DialogContent>
+      <dialog.DialogHeader>
+        <dialog.DialogTitle>Edit post</dialog.DialogTitle>
+        <dialog.DialogDescription>Update your post</dialog.DialogDescription>
+      </dialog.DialogHeader>
 
       <form
         className="space-y-4"
@@ -46,13 +48,13 @@ const UpdatePost: React.FC<{ post: Post }> = ({ post }) => {
           message={String(error?.data?.zodError?.fieldErrors.image ?? '')}
         />
 
-        <DialogFooter>
+        <dialog.DialogFooter>
           <Button type="submit" disabled={isLoading}>
             Save
           </Button>
-        </DialogFooter>
+        </dialog.DialogFooter>
       </form>
-    </DialogContent>
+    </dialog.DialogContent>
   )
 }
 

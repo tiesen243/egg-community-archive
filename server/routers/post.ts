@@ -1,8 +1,7 @@
+import * as post from '@/server/schemas/post'
+import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
 import { revalidatePath } from 'next/cache'
-import { commentSchema, createSchema, getByIdSchema, updateSchema } from '@/server/schemas/post'
-import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
-import { z } from 'zod'
 
 export const postRouter = createRouter({
   // [GET]
@@ -10,7 +9,7 @@ export const postRouter = createRouter({
     return ctx.db.post.findMany({ include: { author: true }, orderBy: { createdAt: 'desc' } })
   }),
 
-  getByUser: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getByUser: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
     return ctx.db.post.findMany({
       where: { authorId: input },
       include: { author: true },
@@ -18,9 +17,9 @@ export const postRouter = createRouter({
     })
   }),
 
-  getById: publicProcedure.input(getByIdSchema).query(async ({ ctx, input }) => {
+  getById: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
     return ctx.db.post.findUnique({
-      where: { id: input.id },
+      where: { id: input },
       include: {
         author: true,
         comments: {
@@ -32,7 +31,7 @@ export const postRouter = createRouter({
   }),
 
   // [POST]
-  create: protectedProcedure.input(createSchema).mutation(async ({ ctx, input }) => {
+  create: protectedProcedure.input(post.createSchema).mutation(async ({ ctx, input }) => {
     const newPost = await ctx.db.post.create({
       data: {
         content: input.content,
@@ -42,12 +41,12 @@ export const postRouter = createRouter({
     })
     if (!newPost) throw new TRPCError({ message: 'Failed to create post', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath('/profile')
+    revalidatePath(`/users/${ctx.session.user.id}`)
     revalidatePath('/')
     return newPost
   }),
 
-  comment: protectedProcedure.input(commentSchema).mutation(async ({ ctx, input }) => {
+  comment: protectedProcedure.input(post.commentSchema).mutation(async ({ ctx, input }) => {
     const newComment = await ctx.db.comment.create({
       data: {
         content: input.comment,
@@ -63,7 +62,7 @@ export const postRouter = createRouter({
   }),
 
   // [PATCH]
-  update: protectedProcedure.input(updateSchema).mutation(async ({ ctx, input }) => {
+  update: protectedProcedure.input(post.updateSchema).mutation(async ({ ctx, input }) => {
     const post = await ctx.db.post.findUnique({ where: { id: input.id } })
     if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
 
@@ -82,23 +81,54 @@ export const postRouter = createRouter({
 
     if (!updatedPost) throw new TRPCError({ message: 'Failed to update post', code: 'INTERNAL_SERVER_ERROR' })
 
+    revalidatePath(`/users/${ctx.session.user.id}`)
     revalidatePath(`/post/${input.id}`)
-    revalidatePath('/profile')
+    revalidatePath('/')
     return updatedPost
   }),
 
+  updateComment: protectedProcedure.input(post.updateCommentSchema).mutation(async ({ ctx, input }) => {
+    const comment = await ctx.db.comment.findUnique({ where: { id: input.id } })
+    if (!comment) throw new TRPCError({ message: 'Comment not found', code: 'NOT_FOUND' })
+
+    if (comment.authorId !== ctx.session.user.id)
+      throw new TRPCError({ message: "You aren't the author of this comment", code: 'FORBIDDEN' })
+
+    const updatedComment = await ctx.db.comment.update({
+      where: { id: input.id },
+      data: { content: input.content },
+    })
+
+    if (!updatedComment) throw new TRPCError({ message: 'Failed to update comment', code: 'INTERNAL_SERVER_ERROR' })
+
+    revalidatePath(`/post/${comment.postId}`)
+    return updatedComment
+  }),
+
   // [DELETE]
-  delete: protectedProcedure.input(getByIdSchema).mutation(async ({ ctx, input }) => {
-    const post = await ctx.db.post.findUnique({ where: { id: input.id } })
+  delete: protectedProcedure.input(post.id).mutation(async ({ ctx, input }) => {
+    const post = await ctx.db.post.findUnique({ where: { id: input } })
     if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
 
     if (post.authorId !== ctx.session.user.id)
       throw new TRPCError({ message: "You aren't the author of this post", code: 'FORBIDDEN' })
-    await ctx.db.comment.deleteMany({ where: { postId: input.id } })
-    await ctx.db.post.delete({ where: { id: input.id } })
+    await ctx.db.comment.deleteMany({ where: { postId: input } })
+    await ctx.db.post.delete({ where: { id: input } })
 
-    revalidatePath('/profile')
+    revalidatePath(`/users/${ctx.session.user.id}`)
     revalidatePath('/')
+    return true
+  }),
+
+  deleteComment: protectedProcedure.input(post.id).mutation(async ({ ctx, input }) => {
+    const comment = await ctx.db.comment.findUnique({ where: { id: input } })
+    if (!comment) throw new TRPCError({ message: 'Comment not found', code: 'NOT_FOUND' })
+
+    if (comment.authorId !== ctx.session.user.id)
+      throw new TRPCError({ message: "You aren't the author of this comment", code: 'FORBIDDEN' })
+    await ctx.db.comment.delete({ where: { id: input } })
+
+    revalidatePath(`/post/${comment.postId}`)
     return true
   }),
 })

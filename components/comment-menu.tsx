@@ -1,17 +1,22 @@
-import type { Post, User } from '@prisma/client'
 import { MoreHorizontalIcon } from 'lucide-react'
+import type { Comment, User } from '@prisma/client'
 
-import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import * as dropdownMenu from '@/components/ui/dropdown-menu'
-import UpdatePost from '@/components/update-post'
+import { auth } from '@/server/auth'
 import { api } from '@/lib/trpc/server'
+import { Dialog, DialogTrigger } from './ui/dialog'
+import UpdateComment from './update-comment'
 
 interface Props {
-  post: Post & {
+  comment: Comment & {
     author: User
   }
 }
-const PostMenu: React.FC<Props> = ({ post }) => {
+
+const CommentMenu: React.FC<Props> = async ({ comment }) => {
+  const session = await auth()
+  if (comment.author.id !== session?.user.id) return null
+
   return (
     <Dialog>
       <dropdownMenu.DropdownMenu>
@@ -20,25 +25,26 @@ const PostMenu: React.FC<Props> = ({ post }) => {
         </dropdownMenu.DropdownMenuTrigger>
 
         <dropdownMenu.DropdownMenuContent>
-          <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem> Edit post </dropdownMenu.DropdownMenuItem>
-          </DialogTrigger>
           <dropdownMenu.DropdownMenuItem asChild>
             <form
               action={async () => {
                 'use server'
-                await api.post.delete.mutate(post.id)
+                await api.post.deleteComment.mutate(comment.id)
               }}
             >
-              <button>Delete post</button>
+              <button type="submit">Delete</button>
             </form>
           </dropdownMenu.DropdownMenuItem>
+
+          <DialogTrigger asChild>
+            <dropdownMenu.DropdownMenuItem>Edit</dropdownMenu.DropdownMenuItem>
+          </DialogTrigger>
         </dropdownMenu.DropdownMenuContent>
       </dropdownMenu.DropdownMenu>
 
-      <UpdatePost post={post} />
+      <UpdateComment id={comment.id} content={comment.content} />
     </Dialog>
   )
 }
 
-export default PostMenu
+export default CommentMenu

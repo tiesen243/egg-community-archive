@@ -21,10 +21,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
           <span className="text-muted-foreground">{post.createdAt.toDateString()}</span>
         </div>
       </CardHeader>
-      <CardContent className="truncate-to-4-lines m-6 mt-0 p-0">{post.content}</CardContent>
+      <CardContent className="mb-4 line-clamp-3 pb-0">{post.content}</CardContent>
+
       {post.image && (
-        <CardFooter className="aspect-video">
-          <Image src={post.image} alt={post.id} className="rounded" fill />
+        <CardFooter>
+          <Image src={post.image} alt={post.id} width={500} height={200} className="h-auto w-full rounded" />
         </CardFooter>
       )}
     </Card>

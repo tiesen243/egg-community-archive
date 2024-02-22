@@ -1,19 +1,21 @@
-import CommentPost from '@/components/comment-post'
-import { Card, CardContent, CardDescription } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import UserAvatar from '@/components/user-avatar'
-import { api } from '@/lib/trpc/server'
 import type { Metadata, NextPage, ResolvingMetadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+
+import CommentCard from '@/components/comment-card'
+import CommentPost from '@/components/comment-post'
+import { Separator } from '@/components/ui/separator'
+import UserAvatar from '@/components/user-avatar'
+import { api } from '@/lib/trpc/server'
+import CommentMenu from '@/components/comment-menu'
 
 interface Props {
   params: { id: string }
 }
 
 export const generateMetadata = async ({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
-  const postDetail = await api.post.getById.query({ id: params.id })
+  const postDetail = await api.post.getById.query(params.id)
   if (!postDetail) return { title: 'Post not found' }
   const previousImages = (await parent).openGraph?.images || []
 
@@ -35,7 +37,7 @@ export const generateMetadata = async ({ params }: Props, parent: ResolvingMetad
 
 const Page: NextPage<Props> = async ({ params }) => {
   try {
-    const postDetail = await api.post.getById.query({ id: params.id })
+    const postDetail = await api.post.getById.query(params.id)
     if (!postDetail) throw new Error('Post not found')
 
     return (
@@ -62,19 +64,14 @@ const Page: NextPage<Props> = async ({ params }) => {
 
           <CommentPost postId={postDetail.id} />
 
-          {postDetail.comments.map((comment) => (
-            <Card key={comment.id}>
-              <section className="flex gap-2 p-4">
-                <UserAvatar user={comment.author} />
-                <div>
-                  <p>{comment.author.name}</p>
-                  <CardDescription>{comment.createdAt.toDateString()}</CardDescription>
-                </div>
-              </section>
-
-              <CardContent>{comment.content}</CardContent>
-            </Card>
-          ))}
+          <ul className="space-y-4">
+            {postDetail.comments.map((comment) => (
+              <li key={comment.id}>
+                <CommentMenu comment={comment} />
+                <CommentCard comment={comment} />
+              </li>
+            ))}
+          </ul>
         </section>
       </main>
     )

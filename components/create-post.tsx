@@ -9,19 +9,23 @@ import { FormField } from './form-field'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 import UserAvatar from './user-avatar'
+import React from 'react'
 
 const CreatePost: React.FC<{ user: User }> = ({ user }) => {
+  const formRef = React.useRef<HTMLFormElement>(null)
   const { mutate, error } = api.post.create.useMutation({
     onError: (error) => {
       if (!error.data?.zodError) toast.error(error.message)
     },
     onSuccess: () => {
+      formRef.current?.reset()
       toast.success('Post created')
     },
   })
   return (
     <Card className="bg-secondary/50">
       <form
+        ref={formRef}
         className="space-y-4 p-4"
         action={(formData: FormData) => {
           const content = String(formData.get('content'))
