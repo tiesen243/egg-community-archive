@@ -1,12 +1,13 @@
-import { siteConfig } from '@/lib/site'
-import { MetadataRoute } from 'next'
+const baseUrl = process.env.NODE_ENV === 'production' ? process.env.VERCEL_URL : 'http://localhost:3000'
 
-export default function robots(): MetadataRoute.Robots {
+export default function robots() {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-    },
-    sitemap: `${siteConfig.alternates.canonical}/sitemap.xml`,
+    rules: [
+      {
+        userAgent: '*',
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 }
