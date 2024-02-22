@@ -11,20 +11,20 @@ const baseUrl = process.env.NODE_ENV === 'production' ? siteConfig.alternates.ca
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routesMap = [''].map((route) => ({
-    url: `${baseUrl}/${route}`,
+    url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
   }))
 
   const usersPromise = await db.user.findMany().then((res) =>
     res.map((user) => ({
-      url: `${baseUrl}/u/${user.id}`,
+      url: `${baseUrl}u/${user.id}`,
       lastModified: new Date().toISOString(),
     })),
   )
 
   const blogsPromise = await db.post.findMany().then((res) =>
     res.map((post) => ({
-      url: `${baseUrl}/p/${post.id}`,
+      url: `${baseUrl}p/${post.id}`,
       lastModified: new Date().toISOString(),
     })),
   )
