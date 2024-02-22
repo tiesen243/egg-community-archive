@@ -26,10 +26,7 @@ const Page: NextPage = () => {
     <main className="container grid flex-grow place-items-center">
       <Card className="grid w-full grid-cols-1 md:grid-cols-3">
         <div className="col-span-2">
-          <FormHeader
-            title="Register"
-            description="Register a new account to access the full features of the application."
-          />
+          <FormHeader title="Login" description="Welcome back! Please login to your account." />
 
           <form action={submit}>
             <CardContent className="space-y-4">
