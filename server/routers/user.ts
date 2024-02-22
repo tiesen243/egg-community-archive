@@ -37,6 +37,20 @@ export const userRouter = createRouter({
 
     if (!user) throw new TRPCError({ message: 'Failed to create user', code: 'INTERNAL_SERVER_ERROR' })
 
+    await fetch(String(process.env.EMAIL_SERVER ?? ''), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Egg Community',
+        to: input.email,
+        reply_to: 'ttien56906@gmail.com',
+        subject: 'Welcome to Egg Community',
+        text: `Welcome, ${input.name}!
+               We are excited to have you join our community. If you have any questions, feel free to reach out to us at https://egg-community.vercel.app 
+              `,
+      }),
+    })
+
     return {
       message: 'User created successfully',
     }
