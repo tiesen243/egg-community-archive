@@ -11,7 +11,7 @@ const Search: React.FC = () => {
   return (
     <form action={search} className="flex w-1/3 gap-2">
       <Input type="search" name="search" placeholder="Search..." />
-      <Button type="submit" variant="outline" size="icon">
+      <Button type="submit" variant="outline" size="icon" className="hidden md:flex">
         <SearchIcon />
       </Button>
     </form>

@@ -38,7 +38,7 @@ const Page: NextPage<Props> = async ({ params }) => {
   const userPosts = await api.post.getByUser.query(params.id)
 
   return (
-    <main className="container grid flex-grow grid-cols-1 gap-4 md:grid-cols-12">
+    <main className="container flex flex-grow flex-col gap-4 md:grid md:grid-cols-12">
       <section className="space-y-4 md:col-span-5">
         <div className="flex items-center gap-2">
           <UserAvatar user={user} />
@@ -48,19 +48,18 @@ const Page: NextPage<Props> = async ({ params }) => {
           </div>
         </div>
 
-        <blockquote>{user.bio}</blockquote>
+        {user.bio && <blockquote>{user.bio}</blockquote>}
 
         {session?.user?.id === user.id && (
           <>
             <CreatePost user={user} />
-
             <UpdateDialog user={user} />
           </>
         )}
       </section>
 
       <section className="md:col-span-7">
-        <h2 className="text-xl font-bold">All your posts</h2>
+        <h2 className="text-xl font-bold">{user.name}&apos;s posts</h2>
 
         <ul className="mt-4 space-y-4">
           {userPosts.map((post) => (
