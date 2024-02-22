@@ -7,6 +7,10 @@ import { z } from 'zod'
 
 export const userRouter = createRouter({
   // [GET]
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.user.findMany()
+  }),
+
   getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
@@ -44,7 +48,7 @@ export const userRouter = createRouter({
         to: input.email,
         reply_to: 'ttien56906@gmail.com',
         subject: 'Welcome to Egg Community',
-        message: `Hi ${input.name}, your account has been created successfully! Thanks for joining Egg Community! We're excited to have you on board. If you have any questions, feel free to reach out to us at`,
+        message: `Hi ${input.name}, your account has been created successfully! Thanks for joining Egg Community! We're fucking excited to have you on board. If you have any more fucking questions, feel free to fuck my ask`,
       }),
     })
 
