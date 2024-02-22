@@ -1,5 +1,5 @@
 import { siteConfig } from '@/lib/site'
-import { api } from '@/lib/trpc/server'
+import db from '@/prisma'
 import { MetadataRoute } from 'next'
 
 interface Route {
@@ -15,14 +15,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date().toISOString(),
   }))
 
-  const usersPromise = await api.user.getAll.query().then((res) =>
+  const usersPromise = await db.user.findMany().then((res) =>
     res.map((user) => ({
       url: `${baseUrl}/u/${user.id}`,
       lastModified: new Date().toISOString(),
     })),
   )
 
-  const blogsPromise = await api.post.getAll.query().then((res) =>
+  const blogsPromise = await db.post.findMany().then((res) =>
     res.map((post) => ({
       url: `${baseUrl}/p/${post.id}`,
       lastModified: new Date().toISOString(),

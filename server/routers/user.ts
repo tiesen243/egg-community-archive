@@ -7,17 +7,12 @@ import { z } from 'zod'
 
 export const userRouter = createRouter({
   // [GET]
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.user.findMany()
-  }),
-
   getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
     })
 
     if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
-
     return user
   }),
 
