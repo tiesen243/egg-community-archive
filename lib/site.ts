@@ -9,6 +9,8 @@ export const siteConfig = {
   description: 'A simple socials platform for egg antifan built with Next.js, Prisma, and tRPC.',
   icons: {
     icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
   },
   authors: { name: 'Tiesen', url: 'https://tiesen.id.vn' },
   keywords: ['egg', 'community', 'antifan', 'socials', 'platform', 'next.js', 'prisma', 'trpc'],

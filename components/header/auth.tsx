@@ -24,7 +24,7 @@ export const Auth: React.FC = async () => {
 
       <DropdownMenuContent>
         <DropdownMenuItem asChild>
-          <Link href={`/users/${session.user.id}`}>
+          <Link href={`/u/${session.user.id}`}>
             <CircleUserRoundIcon className="mr-2" /> {session.user.name}
           </Link>
         </DropdownMenuItem>

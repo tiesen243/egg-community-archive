@@ -1,11 +1,12 @@
 'use client'
 
-import { Post } from '@prisma/client'
+import { toast } from 'sonner'
+
+import type { Post } from '@prisma/client'
 import * as dialog from '@/components/ui/dialog'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/trpc/client'
-import { toast } from 'sonner'
 import { UpdateInput } from '@/server/schemas/post'
 
 const UpdatePost: React.FC<{ post: Post }> = ({ post }) => {

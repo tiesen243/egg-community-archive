@@ -42,7 +42,7 @@ const Page: NextPage<Props> = async ({ params }) => {
 
     return (
       <main className="container max-w-screen-md flex-grow">
-        <Link href={`/users/${postDetail.authorId}`} className="flex items-center gap-2">
+        <Link href={`/u/${postDetail.authorId}`} className="flex items-center gap-2">
           <UserAvatar user={postDetail.author} />
           <div>
             <p>{postDetail.author.name}</p>

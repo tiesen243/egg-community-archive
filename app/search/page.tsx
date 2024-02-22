@@ -24,7 +24,7 @@ const Page: NextPage<Props> = async ({ searchParams }) => {
                 key={user.id}
                 className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary"
               >
-                <Link href={`/users/${user.id}`} className="flex items-center gap-4 p-6">
+                <Link href={`/u/${user.id}`} className="flex items-center gap-4 p-6">
                   <UserAvatar user={user} />
                   {user.name}
                 </Link>

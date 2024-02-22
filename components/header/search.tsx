@@ -9,7 +9,7 @@ const Search: React.FC = () => {
     redirect(`/search?q=${formData.get('search')}`)
   }
   return (
-    <form action={search} className="flex w-1/3 gap-2">
+    <form action={search} className="flex flex-grow gap-2">
       <Input type="search" name="search" placeholder="Search..." />
       <Button type="submit" variant="outline" size="icon" className="hidden md:flex">
         <SearchIcon />

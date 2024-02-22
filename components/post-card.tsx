@@ -12,7 +12,7 @@ interface PostCardProps {
 }
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => (
-  <Link href={`/post/${post.id}`} passHref legacyBehavior>
+  <Link href={`/p/${post.id}`} passHref legacyBehavior>
     <Card className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary">
       <CardHeader className="flex-row items-center gap-2 space-y-0">
         <UserAvatar user={post.author} />
