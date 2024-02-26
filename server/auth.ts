@@ -4,7 +4,7 @@ import 'next-auth/jwt'
 import credentials from 'next-auth/providers/credentials'
 
 import db from '@/prisma'
-import type { User } from '@prisma/client'
+import { User } from '@prisma/client'
 
 declare module 'next-auth' {
   interface Session {
@@ -12,11 +12,11 @@ declare module 'next-auth' {
   }
 }
 
-/* declare module 'next-auth/jwt' { */
-/*   interface JWT { */
-/*     user: User & DefaultSession['user'] */
-/*   } */
-/* } */
+declare module 'next-auth/jwt' {
+  interface JWT {
+    user: User
+  }
+}
 
 const authOptions = {
   providers: [
@@ -41,7 +41,6 @@ const authOptions = {
     }),
   ],
   session: { strategy: 'jwt' },
-  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/signin',
     error: '/auth/signin',
@@ -49,8 +48,7 @@ const authOptions = {
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) token.user = user as User
-
-      /* if (token.user) token.user = (await db.user.findUnique({ where: { id: token.user.id } })) as User */
+      if (token.user.id) token.user = (await db.user.findUnique({ where: { id: token.user.id } })) as User
 
       return token
     },

@@ -1,71 +1,79 @@
 'use client'
 
-import { User } from 'next-auth'
-import { toast } from 'sonner'
-
+import { type User } from 'next-auth'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { api } from '@/lib/trpc/client'
-import { type UpdateSchema } from '@/server/schemas/user'
+import * as dialog from '@/components/ui/dialog'
+import { updateProfile } from '@/server/actions'
+import { useFormStatus } from 'react-dom'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+
+interface Error {
+  name: string
+  bio: string
+}
 
 const UpdateDialog: React.FC<{ user: User }> = ({ user }) => {
-  const { mutate, error, isLoading } = api.user.update.useMutation({
-    onError: (err) => {
-      if (!err.data?.zodError) return toast.error(err.message)
-    },
-    onSuccess: () => {
-      toast.success('Profile updated!', {
-        description: 'Refresh the page to see the changes.',
-      })
-    },
-  })
+  const [open, setOpen] = useState<boolean>(false)
+
+  const [error, setError] = useState<Error>()
+  const { refresh } = useRouter()
+  const action = async (formData: FormData) => {
+    const res = await updateProfile(formData)
+    if (res.error) {
+      res.cause ? setError(res.cause) : setError({ name: '', bio: '' })
+      return toast.error(res.error)
+    }
+
+    refresh()
+    setOpen(false)
+    toast.success(res.message)
+  }
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <dialog.Dialog open={open} onOpenChange={setOpen}>
+      <dialog.DialogTrigger asChild>
         <Button>Edit profile</Button>
-      </DialogTrigger>
+      </dialog.DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
-          <DialogDescription> Update your profile information. </DialogDescription>
-        </DialogHeader>
+      <dialog.DialogContent>
+        <dialog.DialogHeader>
+          <dialog.DialogTitle>Edit profile</dialog.DialogTitle>
+          <dialog.DialogDescription> Update your profile information. </dialog.DialogDescription>
+        </dialog.DialogHeader>
 
-        <form
-          className="space-y-4"
-          action={(formData: FormData) => {
-            const data = Object.fromEntries(formData) as UpdateSchema
-            mutate(data)
-          }}
-        >
+        <form className="space-y-4" action={action}>
           {fields.map((field) => (
             <FormField
               key={field.name}
               {...field}
-              defaultValue={String(user[field.name as keyof User] ?? '')}
-              message={String(error?.data?.zodError?.fieldErrors[field.name] ?? '')}
+              {...(field.type !== 'file'
+                ? { defaultValue: String(user[field.name as keyof User]) }
+                : { accept: 'image/*' })}
+              message={error?.[field.name as keyof Error]}
             />
           ))}
 
-          <DialogFooter>
-            <Button disabled={isLoading}>Save</Button>
-          </DialogFooter>
+          <SubmitButton />
         </form>
-      </DialogContent>
-    </Dialog>
+      </dialog.DialogContent>
+    </dialog.Dialog>
   )
 }
 
 export default UpdateDialog
+
+const SubmitButton: React.FC = () => {
+  const { pending } = useFormStatus()
+  return (
+    <dialog.DialogFooter>
+      <Button type="submit" disabled={pending}>
+        Save changes
+      </Button>
+    </dialog.DialogFooter>
+  )
+}
 
 const fields = [
   {
@@ -82,6 +90,6 @@ const fields = [
   {
     name: 'image',
     label: 'Profile picture',
-    type: 'url',
+    type: 'file',
   },
 ]

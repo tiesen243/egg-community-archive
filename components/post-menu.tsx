@@ -5,6 +5,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import * as dropdownMenu from '@/components/ui/dropdown-menu'
 import UpdatePost from '@/components/update-post'
 import { api } from '@/lib/trpc/server'
+import { deleteFile } from '@/lib/cloudinary'
 
 interface Props {
   post: Post & {
@@ -21,13 +22,14 @@ const PostMenu: React.FC<Props> = ({ post }) => {
 
         <dropdownMenu.DropdownMenuContent>
           <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem> Edit post </dropdownMenu.DropdownMenuItem>
+            <dropdownMenu.DropdownMenuItem>Edit post</dropdownMenu.DropdownMenuItem>
           </DialogTrigger>
           <dropdownMenu.DropdownMenuItem asChild>
             <form
               action={async () => {
                 'use server'
                 await api.post.delete.mutate(post.id)
+                post.image && deleteFile(post.image)
               }}
             >
               <button>Delete post</button>

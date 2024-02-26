@@ -1,38 +1,39 @@
 'use client'
 
-import { api } from '@/lib/trpc/client'
-import { SendHorizonalIcon } from 'lucide-react'
+import { Loader2Icon, SendHorizonalIcon } from 'lucide-react'
 import type { User } from 'next-auth'
 import { toast } from 'sonner'
 
+import { createPost } from '@/server/actions'
+import React, { useState } from 'react'
 import { FormField } from './form-field'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 import UserAvatar from './user-avatar'
-import React from 'react'
+import { useFormStatus } from 'react-dom'
+
+interface Error {
+  content?: string
+  image?: string
+}
 
 const CreatePost: React.FC<{ user: User }> = ({ user }) => {
   const formRef = React.useRef<HTMLFormElement>(null)
-  const { mutate, error } = api.post.create.useMutation({
-    onError: (error) => {
-      if (!error.data?.zodError) toast.error(error.message)
-    },
-    onSuccess: () => {
-      formRef.current?.reset()
-      toast.success('Post created')
-    },
-  })
+  const [error, setError] = useState<Error>()
+  const action = async (formData: FormData) => {
+    const res = await createPost(formData)
+    if (res.error) {
+      res.cause ? setError(res.cause) : setError({})
+      return toast.error(res.error)
+    }
+    formRef.current?.reset()
+    setError({})
+    return toast.success(res.message)
+  }
+
   return (
     <Card className="bg-secondary/50">
-      <form
-        ref={formRef}
-        className="space-y-4 p-4"
-        action={(formData: FormData) => {
-          const content = String(formData.get('content'))
-          const image = String(formData.get('image'))
-          mutate({ content, image })
-        }}
-      >
+      <form ref={formRef} className="space-y-4 p-4" action={action}>
         <div className="flex gap-4">
           <UserAvatar user={user} />
           <FormField
@@ -40,24 +41,22 @@ const CreatePost: React.FC<{ user: User }> = ({ user }) => {
             placeholder="What's on your mind?"
             className="flex-grow"
             inputClassName="bg-secondary"
-            message={String(error?.data?.zodError?.fieldErrors.content ?? '')}
             multiline
+            message={error?.content}
           />
         </div>
 
         <div className="flex gap-2">
           <FormField
-            type="url"
+            type="file"
             name="image"
-            placeholder="Image URL"
             className="flex-grow"
             inputClassName="rounded-full bg-secondary"
-            message={String(error?.data?.zodError?.fieldErrors.image ?? '')}
+            accept="image/*"
+            message={error?.image}
           />
 
-          <Button type="submit" className="rounded-full" size="icon">
-            <SendHorizonalIcon />
-          </Button>
+          <CreateBtn />
         </div>
       </form>
     </Card>
@@ -65,3 +64,13 @@ const CreatePost: React.FC<{ user: User }> = ({ user }) => {
 }
 
 export default CreatePost
+
+const CreateBtn: React.FC = () => {
+  const { pending } = useFormStatus()
+
+  return (
+    <Button type="submit" className="rounded-full" size="icon" disabled={pending}>
+      {pending ? <Loader2Icon className="animate-spin" /> : <SendHorizonalIcon />}
+    </Button>
+  )
+}

@@ -9,7 +9,7 @@ export const createSchema = z.object({
     .max(2000, {
       message: 'Post must be at most 2000 characters long',
     }),
-  image: z.optional(z.string()).or(z.string().url({ message: 'Image must be a valid URL' })),
+  image: z.optional(z.string()).or(z.string().url()),
 })
 
 export type CreateInput = z.infer<typeof createSchema>

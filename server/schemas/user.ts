@@ -28,8 +28,10 @@ export type LoginSchema = z.infer<typeof loginSchema>
 
 export const updateSchema = z.object({
   name: z.string().min(4).max(20).optional(),
-  image: z.string().url().optional(),
+  image: z.optional(z.string()).or(z.string().url()),
   bio: z.string().max(100).optional(),
 })
 
 export type UpdateSchema = z.infer<typeof updateSchema>
+
+export const id = z.string()

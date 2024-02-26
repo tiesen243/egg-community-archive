@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
 
+import { id, registerSchema, updateSchema } from '@/server/schemas/user'
 import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
-import { registerSchema, updateSchema } from '@/server/schemas/user'
 import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
+import { deleteFile } from '@/lib/cloudinary'
 
 export const userRouter = createRouter({
   // [GET]
-  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getById: publicProcedure.input(id).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
     })
@@ -43,7 +43,7 @@ export const userRouter = createRouter({
         to: input.email,
         reply_to: 'ttien56906@gmail.com',
         subject: 'Welcome to Egg Community',
-        message: `Hi ${input.name}, your account has been created successfully! Thanks for joining Egg Community! We're fucking excited to have you on board. If you have any more fucking questions, feel free to fuck my ask`,
+        message: `Hi ${input.name}, your account has been created successfully!<br> Thanks for joining Egg Community! We're fucking excited to have you on board.<br> If you have any more fucking questions, feel free to fuck my ask`,
       }),
     })
 
@@ -55,16 +55,19 @@ export const userRouter = createRouter({
   // [PATCH]
   update: protectedProcedure.input(updateSchema).mutation(async ({ ctx, input }) => {
     const { user } = ctx.session
+
     const updatedUser = await ctx.db.user.update({
       where: { id: user.id },
       data: {
-        name: input.name ? input.name : user.name,
-        image: input.image ? input.image : user.image,
-        bio: input.bio ? input.bio : user.bio,
+        name: input.name ?? user.name,
+        image: input.image !== '' ? input.image : user.image,
+        bio: input.bio ?? user.bio,
       },
     })
 
     if (!updatedUser) throw new TRPCError({ message: 'Failed to update user', code: 'INTERNAL_SERVER_ERROR' })
+
+    input.image && ctx.session.user.image && (await deleteFile(ctx.session.user.image))
 
     return {
       message: 'User updated successfully',

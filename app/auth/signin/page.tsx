@@ -1,16 +1,15 @@
 'use client'
 
 import type { NextPage } from 'next'
-import Image from 'next/image'
-
-import { FormField } from '@/components/form-field'
-import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { FormFooter, FormHeader } from '../_shared'
-import { login } from './login'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
+
+import { FormField } from '@/components/form-field'
+import { CardContent } from '@/components/ui/card'
+import { FormFooter, FormHeader } from '../_shared'
+import { login } from './login'
 
 const Page: NextPage = () => {
   const { push, refresh } = useRouter()
@@ -23,33 +22,26 @@ const Page: NextPage = () => {
     toast.success(res.message)
   }
   return (
-    <main className="container grid flex-grow place-items-center">
-      <Card className="grid w-full grid-cols-1 md:grid-cols-3">
-        <div className="col-span-2">
-          <FormHeader title="Login" description="Welcome back! Please login to your account." />
+    <>
+      <FormHeader title="Login" description="Welcome back! Please login to your account." />
 
-          <form action={submit}>
-            <CardContent className="space-y-4">
-              {fields.map((field) => (
-                <FormField key={field.name} {...field} />
-              ))}
+      <form action={submit}>
+        <CardContent className="space-y-4">
+          {fields.map((field) => (
+            <FormField key={field.name} {...field} />
+          ))}
 
-              <span>
-                Don&#39;t have an account?{' '}
-                <Link href="/auth/register" className="underline-offset-4 hover:underline">
-                  Register here.
-                </Link>
-              </span>
-            </CardContent>
+          <p>
+            Don&#39;t have an account?{' '}
+            <Link href="/auth/register" className="underline-offset-4 hover:underline">
+              Register here.
+            </Link>
+          </p>
+        </CardContent>
 
-            <Footer />
-          </form>
-        </div>
-        <div className="col-span-1 hidden aspect-square md:block">
-          <Image src="/auth.gif" alt="Auth" fill />
-        </div>
-      </Card>
-    </main>
+        <Footer />
+      </form>
+    </>
   )
 }
 

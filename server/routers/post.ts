@@ -35,13 +35,13 @@ export const postRouter = createRouter({
     const newPost = await ctx.db.post.create({
       data: {
         content: input.content,
-        image: input.image,
+        image: input.image ?? '',
         author: { connect: { id: ctx.session.user.id } },
       },
     })
     if (!newPost) throw new TRPCError({ message: 'Failed to create post', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/users/${ctx.session.user.id}`)
+    revalidatePath(`/u/${ctx.session.user.id}`)
     revalidatePath('/')
     return newPost
   }),
