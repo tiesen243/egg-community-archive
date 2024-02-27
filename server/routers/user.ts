@@ -36,12 +36,11 @@ export const userRouter = trpc.createRouter({
     })
     if (isExistingUser) throw new TRPCError({ message: 'User already exists', code: 'CONFLICT' })
 
-    const salt = await bcrypt.genSalt(12)
     const user = await ctx.db.user.create({
       data: {
         email: input.email,
         name: input.name,
-        password: bcrypt.hashSync(input.password, salt),
+        password: bcrypt.hashSync(input.password, 10),
       },
     })
 
@@ -82,6 +81,93 @@ export const userRouter = trpc.createRouter({
 
     return {
       message: 'User updated successfully',
+    }
+  }),
+
+  changePass: trpc.protectedProcedure.input(user.changePasswordSchema).mutation(async ({ ctx, input }) => {
+    const { user } = ctx.session
+    const isCorrectPass = bcrypt.compareSync(input.oldPassword, user.password)
+    if (!isCorrectPass) throw new TRPCError({ message: 'Password is incorrect', code: 'UNAUTHORIZED' })
+
+    const updatedUser = await ctx.db.user.update({
+      where: { id: user.id },
+      data: {
+        password: bcrypt.hashSync(input.newPassword, 10),
+      },
+    })
+    if (!updatedUser) throw new TRPCError({ message: 'Failed to update password', code: 'INTERNAL_SERVER_ERROR' })
+
+    await fetch(String(process.env.EMAIL_SERVER ?? ''), {
+      method: 'POST',
+      body: JSON.stringify({
+        from: 'Egg Community',
+        to: user.email,
+        reply_to: 'ttien56906@gmail.com',
+        subject: 'Password Updated',
+        message: `Hi ${user.name}, your password has been updated successfully!<br> If you didn't do this, please contact us immediately`,
+      }),
+    })
+
+    return {
+      message: 'Password updated successfully',
+    }
+  }),
+
+  resetPass: trpc.publicProcedure.input(user.forgotPasswordSchema).mutation(async ({ ctx, input }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { email: input.email },
+    })
+    if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
+
+    const newPassword = `Duci#${Math.floor(100000 + Math.random() * 900000)}`
+    const updatedUser = await ctx.db.user.update({
+      where: { id: user.id },
+      data: {
+        password: bcrypt.hashSync(newPassword, 10),
+      },
+    })
+    if (!updatedUser) throw new TRPCError({ message: 'Failed to update password', code: 'INTERNAL_SERVER_ERROR' })
+
+    await fetch(String(process.env.EMAIL_SERVER ?? ''), {
+      method: 'POST',
+      body: JSON.stringify({
+        from: 'Egg Community',
+        to: input.email,
+        reply_to: 'ttien56906@gmail.com',
+        subject: 'Password Reset',
+        message: `Hi ${user.name}, your password has been reset successfully!<br> Your new password is: ${newPassword}<br> Please change your password after login`,
+      }),
+    })
+
+    return {
+      message: 'Reset password email sent',
+      description: 'Please check your email to reset your password.',
+    }
+  }),
+
+  // [DELETE]
+  deleteAccount: trpc.protectedProcedure.input(user.deleteAccountSchema).mutation(async ({ ctx, input }) => {
+    const { user } = ctx.session
+    const isCorrectPass = bcrypt.compareSync(input.password, user.password)
+    if (!isCorrectPass) throw new TRPCError({ message: 'Password is incorrect', code: 'UNAUTHORIZED' })
+
+    const deletedUser = await ctx.db.user.delete({ where: { id: user.id } })
+    if (!deletedUser) throw new TRPCError({ message: 'Failed to delete user', code: 'INTERNAL_SERVER_ERROR' })
+
+    user.image && (await deleteFile(user.image))
+    await fetch(String(process.env.EMAIL_SERVER ?? ''), {
+      method: 'POST',
+      body: JSON.stringify({
+        from: 'Egg Community',
+        to: user.email,
+        reply_to: user.email,
+        subject: 'Account Deleted',
+        message: `Hi ${user.name}, your account has been deleted successfully!<br> If you didn't do this, please contact us immediately`,
+      }),
+    })
+
+    return {
+      message: 'Account deleted successfully',
     }
   }),
 })

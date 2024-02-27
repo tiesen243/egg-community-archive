@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CircleUserRoundIcon, LogOutIcon } from 'lucide-react'
+import { CircleUserRoundIcon, LogOutIcon, SettingsIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -26,6 +26,12 @@ export const Auth: React.FC = async () => {
         <DropdownMenuItem asChild>
           <Link href={`/u/${session.user.id}`}>
             <CircleUserRoundIcon className="mr-2" /> {session.user.name}
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link href="/settings">
+            <SettingsIcon className="mr-2" /> Settings
           </Link>
         </DropdownMenuItem>
 

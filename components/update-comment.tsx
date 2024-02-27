@@ -44,7 +44,7 @@ const UpdateComment: React.FC<Props> = ({ id, content }) => {
         />
 
         <dialog.DialogFooter>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" isLoading={isLoading}>
             Update
           </Button>
         </dialog.DialogFooter>

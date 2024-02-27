@@ -1,16 +1,16 @@
 'use client'
 
-import { Loader2Icon, SendHorizonalIcon } from 'lucide-react'
+import { SendHorizonalIcon } from 'lucide-react'
 import type { User } from 'next-auth'
+import * as React from 'react'
+import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 
+import { FormField } from '@/components/form-field'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import UserAvatar from '@/components/user-avatar'
 import { createPost } from '@/server/actions'
-import React, { useState } from 'react'
-import { FormField } from './form-field'
-import { Button } from './ui/button'
-import { Card } from './ui/card'
-import UserAvatar from './user-avatar'
-import { useFormStatus } from 'react-dom'
 
 interface Error {
   content?: string
@@ -19,7 +19,7 @@ interface Error {
 
 const CreatePost: React.FC<{ user: User }> = ({ user }) => {
   const formRef = React.useRef<HTMLFormElement>(null)
-  const [error, setError] = useState<Error>()
+  const [error, setError] = React.useState<Error>()
   const action = async (formData: FormData) => {
     const res = await createPost(formData)
     if (res.error) {
@@ -69,8 +69,8 @@ const CreateBtn: React.FC = () => {
   const { pending } = useFormStatus()
 
   return (
-    <Button type="submit" className="rounded-full" size="icon" disabled={pending}>
-      {pending ? <Loader2Icon className="animate-spin" /> : <SendHorizonalIcon />}
+    <Button type="submit" className="rounded-full" size="icon" isLoading={pending}>
+      <SendHorizonalIcon style={{ display: pending ? 'none' : 'block' }} />
     </Button>
   )
 }

@@ -31,12 +31,21 @@ const Page: NextPage = () => {
             <FormField key={field.name} {...field} />
           ))}
 
-          <p>
-            Don&#39;t have an account?{' '}
-            <Link href="/auth/register" className="underline-offset-4 hover:underline">
-              Register here.
-            </Link>
-          </p>
+          <div className="flex flex-col justify-between gap-4 md:flex-row">
+            <p>
+              Don&#39;t have an account?{' '}
+              <Link href="/auth/register" className="underline-offset-4 hover:underline">
+                Register here.
+              </Link>
+            </p>
+
+            <p>
+              Forgot your password?{' '}
+              <Link href="/auth/reset" className="underline-offset-4 hover:underline">
+                Reset it here.
+              </Link>
+            </p>
+          </div>
         </CardContent>
 
         <Footer />

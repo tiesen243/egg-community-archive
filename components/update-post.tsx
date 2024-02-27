@@ -9,7 +9,6 @@ import { updatePost } from '@/server/actions'
 import type { Post } from '@prisma/client'
 import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { Loader2Icon } from 'lucide-react'
 
 interface Error {
   content?: string
@@ -49,8 +48,7 @@ const UpdateButton: React.FC = () => {
   const { pending } = useFormStatus()
   return (
     <dialog.DialogFooter>
-      <Button type="submit" disabled={pending}>
-        <Loader2Icon className={`mr-2 animate-spin ${pending ? 'block' : 'hidden'}`} />
+      <Button type="submit" isLoading={pending}>
         Save changes
       </Button>
     </dialog.DialogFooter>

@@ -37,8 +37,8 @@ const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
         className="flex-grow"
         message={String(error?.data?.zodError?.fieldErrors?.comment ?? '')}
       />
-      <Button type="submit" size="icon" disabled={isLoading}>
-        <SendHorizonalIcon />
+      <Button type="submit" size="icon" isLoading={isLoading}>
+        <SendHorizonalIcon style={{ display: isLoading ? 'none' : 'block' }} />
       </Button>
     </form>
   )

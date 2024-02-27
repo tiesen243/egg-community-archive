@@ -1,10 +1,10 @@
+import type { Metadata, NextPage, ResolvingMetadata } from 'next'
+
 import CreatePost from '@/components/create-post'
 import { PostCard } from '@/components/post-card'
 import PostMenu from '@/components/post-menu'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import type { Metadata, NextPage, ResolvingMetadata } from 'next'
-import UpdateDialog from './_update'
 import { auth } from '@/server/auth'
 
 interface Props {
@@ -50,12 +50,7 @@ const Page: NextPage<Props> = async ({ params }) => {
 
         {user.bio && <blockquote>{user.bio}</blockquote>}
 
-        {session?.user?.id === user.id && (
-          <>
-            <CreatePost user={user} />
-            <UpdateDialog user={user} />
-          </>
-        )}
+        {session?.user?.id === user.id && <CreatePost user={user} />}
       </section>
 
       <section className="md:col-span-7">

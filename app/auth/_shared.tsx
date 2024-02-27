@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2Icon } from 'lucide-react'
 
 interface HeaderProps {
   title: string
@@ -23,8 +22,7 @@ export const FormFooter: React.FC<FooterProps> = ({ btnText, isSubmitting = fals
     <Button type="button" variant="secondary" disabled={isSubmitting}>
       Cancel
     </Button>
-    <Button type="submit" disabled={isSubmitting}>
-      <Loader2Icon className={`${isSubmitting ? 'block' : 'hidden'} mr-2 animate-spin`} />
+    <Button type="submit" isLoading={isSubmitting}>
       {btnText}
     </Button>
   </CardFooter>
