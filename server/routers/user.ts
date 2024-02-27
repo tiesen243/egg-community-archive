@@ -5,6 +5,8 @@ import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
 import { deleteFile } from '@/lib/cloudinary'
 
+const reply_to = process.env.EMAIL!
+
 export const userRouter = trpc.createRouter({
   // [GET]
   getById: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
@@ -51,7 +53,7 @@ export const userRouter = trpc.createRouter({
       body: JSON.stringify({
         from: 'Egg Community',
         to: input.email,
-        reply_to: 'ttien56906@gmail.com',
+        reply_to,
         subject: 'Welcome to Egg Community',
         message: `Hi ${input.name}, your account has been created successfully!<br> Thanks for joining Egg Community! We're fucking excited to have you on board.<br> If you have any more fucking questions, feel free to fuck my ask`,
       }),
@@ -102,7 +104,7 @@ export const userRouter = trpc.createRouter({
       body: JSON.stringify({
         from: 'Egg Community',
         to: user.email,
-        reply_to: 'ttien56906@gmail.com',
+        reply_to,
         subject: 'Password Updated',
         message: `Hi ${user.name}, your password has been updated successfully!<br> If you didn't do this, please contact us immediately`,
       }),
@@ -133,7 +135,7 @@ export const userRouter = trpc.createRouter({
       body: JSON.stringify({
         from: 'Egg Community',
         to: input.email,
-        reply_to: 'ttien56906@gmail.com',
+        reply_to,
         subject: 'Password Reset',
         message: `Hi ${user.name}, your password has been reset successfully!<br> Your new password is: ${newPassword}<br> Please change your password after login`,
       }),
@@ -160,7 +162,7 @@ export const userRouter = trpc.createRouter({
       body: JSON.stringify({
         from: 'Egg Community',
         to: user.email,
-        reply_to: user.email,
+        reply_to,
         subject: 'Account Deleted',
         message: `Hi ${user.name}, your account has been deleted successfully!<br> If you didn't do this, please contact us immediately`,
       }),
