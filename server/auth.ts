@@ -40,6 +40,7 @@ const authOptions = {
       },
     }),
   ],
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/auth/signin',

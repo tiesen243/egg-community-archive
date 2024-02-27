@@ -12,18 +12,9 @@ export const saveFile = async (file: File, folder: 'avatar' | 'post') => {
   const buffer = new Uint8Array(arrayBuffer)
   const base64File = Buffer.from(buffer).toString('base64')
   const fileMimeType = mime.getType(file.name)
-  const result = await new Promise<{ url: string }>((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream({ folder: `egg-community/${folder}` }, function (error, result) {
-        if (error || result === undefined) {
-          reject(error || new Error('Upload result is undefined.'))
-          return
-        }
-        resolve(result)
-      })
-      .end(`data:${fileMimeType};base64,${base64File}`)
+  const result = await cloudinary.uploader.upload(`data:${fileMimeType};base64,${base64File}`, {
+    folder: `egg-community/${folder}`,
   })
-
   return result.url
 }
 
