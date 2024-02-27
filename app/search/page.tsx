@@ -12,14 +12,16 @@ interface Props {
 
 const Page: NextPage<Props> = async ({ searchParams }) => {
   try {
-    const result = await api.search.query(searchParams.q)
+    const users = await api.user.search.query(searchParams.q)
+    const posts = await api.post.search.query(searchParams.q)
+    if (users.length === 0 && posts.length === 0) throw new Error('No results found')
 
     return (
       <main className="container max-w-screen-md flex-grow space-y-4">
-        {result.users.length > 0 && (
+        {users.length > 0 && (
           <section className="space-y-4">
             <h2 className="text-3xl font-bold">Users</h2>
-            {result.users.map((user) => (
+            {users.map((user) => (
               <Card
                 key={user.id}
                 className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary"
@@ -33,10 +35,10 @@ const Page: NextPage<Props> = async ({ searchParams }) => {
           </section>
         )}
 
-        {result.posts.length > 0 && (
+        {posts.length > 0 && (
           <section className="space-y-4">
             <h2 className="text-3xl font-bold">Posts</h2>
-            {result.posts.map((post) => (
+            {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </section>

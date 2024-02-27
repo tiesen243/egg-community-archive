@@ -16,6 +16,17 @@ export const userRouter = createRouter({
     return user
   }),
 
+  search: publicProcedure.input(id).query(async ({ ctx, input }) => {
+    return await ctx.db.user.findMany({
+      where: {
+        name: {
+          contains: input,
+          mode: 'insensitive',
+        },
+      },
+    })
+  }),
+
   // [POST]
   register: publicProcedure.input(registerSchema).mutation(async ({ ctx, input }) => {
     const isExistingUser = await ctx.db.user.findUnique({

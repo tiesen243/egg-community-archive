@@ -17,6 +17,18 @@ export const postRouter = createRouter({
     })
   }),
 
+  search: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
+    return await ctx.db.post.findMany({
+      where: {
+        content: {
+          contains: input,
+          mode: 'insensitive',
+        },
+      },
+      include: { author: true },
+    })
+  }),
+
   getById: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
     return ctx.db.post.findUnique({
       where: { id: input },
