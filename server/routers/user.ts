@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
 
-import { id, registerSchema, updateSchema } from '@/server/schemas/user'
-import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
+import * as user from '@/server/schemas/user'
+import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
 import { deleteFile } from '@/lib/cloudinary'
 
-export const userRouter = createRouter({
+export const userRouter = trpc.createRouter({
   // [GET]
-  getById: publicProcedure.input(id).query(async ({ ctx, input }) => {
+  getById: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
     })
@@ -16,7 +16,7 @@ export const userRouter = createRouter({
     return user
   }),
 
-  search: publicProcedure.input(id).query(async ({ ctx, input }) => {
+  search: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
     return await ctx.db.user.findMany({
       where: {
         name: {
@@ -28,7 +28,7 @@ export const userRouter = createRouter({
   }),
 
   // [POST]
-  register: publicProcedure.input(registerSchema).mutation(async ({ ctx, input }) => {
+  register: trpc.publicProcedure.input(user.registerSchema).mutation(async ({ ctx, input }) => {
     const isExistingUser = await ctx.db.user.findUnique({
       where: {
         email: input.email,
@@ -64,7 +64,7 @@ export const userRouter = createRouter({
   }),
 
   // [PATCH]
-  update: protectedProcedure.input(updateSchema).mutation(async ({ ctx, input }) => {
+  update: trpc.protectedProcedure.input(user.updateSchema).mutation(async ({ ctx, input }) => {
     const { user } = ctx.session
 
     const updatedUser = await ctx.db.user.update({

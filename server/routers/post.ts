@@ -1,15 +1,15 @@
 import * as post from '@/server/schemas/post'
-import { createRouter, protectedProcedure, publicProcedure } from '@/server/trpc'
+import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
 import { revalidatePath } from 'next/cache'
 
-export const postRouter = createRouter({
+export const postRouter = trpc.createRouter({
   // [GET]
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: trpc.publicProcedure.query(({ ctx }) => {
     return ctx.db.post.findMany({ include: { author: true }, orderBy: { createdAt: 'desc' } })
   }),
 
-  getByUser: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
+  getByUser: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
     return ctx.db.post.findMany({
       where: { authorId: input },
       include: { author: true },
@@ -17,7 +17,7 @@ export const postRouter = createRouter({
     })
   }),
 
-  search: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
+  search: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
     return await ctx.db.post.findMany({
       where: {
         content: {
@@ -29,7 +29,7 @@ export const postRouter = createRouter({
     })
   }),
 
-  getById: publicProcedure.input(post.id).query(async ({ ctx, input }) => {
+  getById: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
     return ctx.db.post.findUnique({
       where: { id: input },
       include: {
@@ -43,7 +43,7 @@ export const postRouter = createRouter({
   }),
 
   // [POST]
-  create: protectedProcedure.input(post.createSchema).mutation(async ({ ctx, input }) => {
+  create: trpc.protectedProcedure.input(post.createSchema).mutation(async ({ ctx, input }) => {
     const newPost = await ctx.db.post.create({
       data: {
         content: input.content,
@@ -58,7 +58,7 @@ export const postRouter = createRouter({
     return newPost
   }),
 
-  comment: protectedProcedure.input(post.commentSchema).mutation(async ({ ctx, input }) => {
+  comment: trpc.protectedProcedure.input(post.commentSchema).mutation(async ({ ctx, input }) => {
     const newComment = await ctx.db.comment.create({
       data: {
         content: input.comment,
@@ -74,7 +74,7 @@ export const postRouter = createRouter({
   }),
 
   // [PATCH]
-  update: protectedProcedure.input(post.updateSchema).mutation(async ({ ctx, input }) => {
+  update: trpc.protectedProcedure.input(post.updateSchema).mutation(async ({ ctx, input }) => {
     const post = await ctx.db.post.findUnique({ where: { id: input.id } })
     if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
 
@@ -99,7 +99,7 @@ export const postRouter = createRouter({
     return updatedPost
   }),
 
-  updateComment: protectedProcedure.input(post.updateCommentSchema).mutation(async ({ ctx, input }) => {
+  updateComment: trpc.protectedProcedure.input(post.updateCommentSchema).mutation(async ({ ctx, input }) => {
     const comment = await ctx.db.comment.findUnique({ where: { id: input.id } })
     if (!comment) throw new TRPCError({ message: 'Comment not found', code: 'NOT_FOUND' })
 
@@ -118,7 +118,7 @@ export const postRouter = createRouter({
   }),
 
   // [DELETE]
-  delete: protectedProcedure.input(post.id).mutation(async ({ ctx, input }) => {
+  delete: trpc.protectedProcedure.input(post.string).mutation(async ({ ctx, input }) => {
     const post = await ctx.db.post.findUnique({ where: { id: input } })
     if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
 
@@ -132,7 +132,7 @@ export const postRouter = createRouter({
     return true
   }),
 
-  deleteComment: protectedProcedure.input(post.id).mutation(async ({ ctx, input }) => {
+  deleteComment: trpc.protectedProcedure.input(post.string).mutation(async ({ ctx, input }) => {
     const comment = await ctx.db.comment.findUnique({ where: { id: input } })
     if (!comment) throw new TRPCError({ message: 'Comment not found', code: 'NOT_FOUND' })
 

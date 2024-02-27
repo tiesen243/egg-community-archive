@@ -33,4 +33,4 @@ export type UpdateInput = z.infer<typeof updateSchema>
 export const updateCommentSchema = commentSchema.extend({ id: z.string() })
 export type UpdateCommentInput = z.infer<typeof updateCommentSchema>
 
-export const id = z.string()
+export const string = z.string()

@@ -34,4 +34,4 @@ export const updateSchema = z.object({
 
 export type UpdateSchema = z.infer<typeof updateSchema>
 
-export const id = z.string()
+export const string = z.string()
