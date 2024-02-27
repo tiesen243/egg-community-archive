@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
+import mime from 'mime'
 
 cloudinary.config({
   cloud_name: process.env.CLD_NAME!,
@@ -9,6 +10,8 @@ cloudinary.config({
 export const saveFile = async (file: File, folder: 'avatar' | 'post') => {
   const arrayBuffer = await file.arrayBuffer()
   const buffer = new Uint8Array(arrayBuffer)
+  const base64File = Buffer.from(buffer).toString('base64')
+  const fileMimeType = mime.getType(file.name)
   const result = await new Promise<{ url: string }>((resolve, reject) => {
     cloudinary.uploader
       .upload_stream({ folder: `egg-community/${folder}` }, function (error, result) {
@@ -18,7 +21,7 @@ export const saveFile = async (file: File, folder: 'avatar' | 'post') => {
         }
         resolve(result)
       })
-      .end(buffer)
+      .end(`data:${fileMimeType};base64,${base64File}`)
   })
 
   return result.url
