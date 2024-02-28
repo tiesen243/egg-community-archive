@@ -121,7 +121,7 @@ export const userRouter = trpc.createRouter({
     })
     if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
 
-    const newPassword = `Duci#${Math.floor(100000 + Math.random() * 900000)}`
+    const newPassword = `Egg#${Math.floor(1000000 + Math.random() * 9000000)}`
     const updatedUser = await ctx.db.user.update({
       where: { id: user.id },
       data: {

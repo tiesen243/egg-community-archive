@@ -23,9 +23,9 @@ interface Error {
 const Page: NextPage = () => {
   const { data, status } = useSession()
   const [error, setError] = useState<Error>({})
-  if (status === 'unauthenticated') return null
-
   const { refresh } = useRouter()
+  if (status === 'unauthenticated') return null
+  
   const action = async (formData: FormData) => {
     const res = await updateProfile(formData)
     if (res.error) {
