@@ -20,15 +20,15 @@ export const generateMetadata = async ({ params }: Props, parent: ResolvingMetad
   const previousImages = (await parent).openGraph?.images || []
 
   return {
-    title: postDetail.content.slice(0, 20),
+    title: postDetail.author.name,
     description: postDetail.content,
     openGraph: {
-      title: postDetail.content.slice(0, 20),
+      title: postDetail.author.name,
       description: postDetail.content,
       images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
     },
     twitter: {
-      title: postDetail.content.slice(0, 20),
+      title: postDetail.author.name,
       description: postDetail.content,
       images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
     },
