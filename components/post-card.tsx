@@ -21,7 +21,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
           <span className="text-muted-foreground">{post.createdAt.toDateString()}</span>
         </div>
       </CardHeader>
-      <CardContent className="mb-4 line-clamp-3 pb-0">{post.content}</CardContent>
+
+      <CardContent className="mb-4 line-clamp-3 pb-0" dangerouslySetInnerHTML={{ __html: post.content }} />
 
       {post.image && (
         <CardFooter>
