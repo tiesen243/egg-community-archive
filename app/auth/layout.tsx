@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Authentication for the application',
 }
 const AuthLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
-  <main className="container -mt-20 grid min-h-dvh flex-grow place-items-center">
+  <main className="container grid min-h-[90dvh] flex-grow place-items-center">
     <Card className="w-full border-none md:w-2/3 lg:w-1/2">{children}</Card>
   </main>
 )

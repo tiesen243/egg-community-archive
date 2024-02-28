@@ -4,12 +4,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import CommentCard from '@/components/comment-card'
+import CommentMenu from '@/components/comment-menu'
 import CommentPost from '@/components/comment-post'
 import { Separator } from '@/components/ui/separator'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import CommentMenu from '@/components/comment-menu'
-import { auth } from '@/server/auth'
 
 interface Props {
   params: { id: string }
@@ -38,8 +37,6 @@ export const generateMetadata = async ({ params }: Props, parent: ResolvingMetad
 
 const Page: NextPage<Props> = async ({ params }) => {
   try {
-    const session = await auth()
-
     const postDetail = await api.post.getById.query(params.id)
     if (!postDetail) throw new Error('Post not found')
 
@@ -55,7 +52,8 @@ const Page: NextPage<Props> = async ({ params }) => {
 
         <Separator className="my-4" />
 
-        <article>{postDetail.content}</article>
+        <article dangerouslySetInnerHTML={{ __html: postDetail.content }} />
+
         {postDetail.image && (
           <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />
         )}
