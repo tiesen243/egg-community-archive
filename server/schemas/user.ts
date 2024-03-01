@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const registerSchema = z
   .object({
-    name: z.string().min(4).max(20),
+    name: z.string().min(2).max(20),
     email: z.string().email(),
     password: z
       .string()
@@ -27,7 +27,7 @@ export const loginSchema = z.object({
 export type LoginSchema = z.infer<typeof loginSchema>
 
 export const updateSchema = z.object({
-  name: z.string().min(4).max(20).optional(),
+  name: z.string().min(2).max(20).optional(),
   image: z.optional(z.string()).or(z.string().url()),
   bio: z.string().max(100).optional(),
 })
