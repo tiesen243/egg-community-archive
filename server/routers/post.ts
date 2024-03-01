@@ -5,19 +5,44 @@ import { revalidatePath } from 'next/cache'
 
 export const postRouter = trpc.createRouter({
   // [GET]
-  getAll: trpc.publicProcedure.query(({ ctx }) => {
-    return ctx.db.post.findMany({ include: { author: true }, orderBy: { createdAt: 'desc' } })
+  getAll: trpc.protectedProcedure.query(async ({ ctx }) => {
+    const post = await ctx.db.post.findMany({
+      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
+    const isLiked = await ctx.db.like.findMany({
+      where: { userId: ctx.session.user.id },
+      select: { postId: true },
+    })
+
+    return post.map((p) => {
+      return {
+        ...p,
+        isLiked: isLiked.some((l) => l.postId === p.id),
+      }
+    })
   }),
 
-  getByUser: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
-    return ctx.db.post.findMany({
+  getByUser: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
+    const posts = await ctx.db.post.findMany({
       where: { authorId: input },
-      include: { author: true },
+      include: { author: true, _count: { select: { comments: true, likes: true } } },
       orderBy: { createdAt: 'desc' },
+    })
+    const isLiked = await ctx.db.like.findMany({
+      where: { userId: ctx.session.user.id },
+      select: { postId: true },
+    })
+    return posts.map((p) => {
+      return {
+        ...p,
+        isLiked: isLiked.some((l) => l.postId === p.id),
+      }
     })
   }),
 
   search: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
+    if (!input) return []
     return await ctx.db.post.findMany({
       where: {
         content: {
@@ -71,6 +96,30 @@ export const postRouter = trpc.createRouter({
 
     revalidatePath(`/post/${input.id}`)
     return newComment
+  }),
+
+  likes: trpc.protectedProcedure.input(post.string).mutation(async ({ ctx, input }) => {
+    const post = await ctx.db.post.findUnique({ where: { id: input } })
+    if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
+
+    const liked = await ctx.db.like.findFirst({
+      where: { postId: input, userId: ctx.session.user.id },
+    })
+
+    if (liked) {
+      await ctx.db.like.delete({ where: { id: liked.id } })
+    } else {
+      await ctx.db.like.create({
+        data: {
+          post: { connect: { id: input } },
+          user: { connect: { id: ctx.session.user.id } },
+        },
+      })
+    }
+
+    revalidatePath(`/p/${input}`)
+    revalidatePath(`/u/${ctx.session.user.id}`)
+    revalidatePath('/')
   }),
 
   // [PATCH]

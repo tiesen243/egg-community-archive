@@ -21,7 +21,10 @@ model User {
   bio   String? @db.String
   image String? @db.String
 
+
+
   posts    Post[]
+  likes    Like[]
   comments Comment[]
 }
 
@@ -35,7 +38,21 @@ model Post {
   author   User   @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId
 
+  likes    Like[]
   comments Comment[]
+}
+
+model Like {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  user  User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  userId String @db.ObjectId
+
+  post  Post @relation(fields: [postId], references: [id],onDelete: Cascade)
+  postId String @db.ObjectId
+
+  @@index([userId])
+  @@index([postId])
 }
 
 model Comment {

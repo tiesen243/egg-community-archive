@@ -1,25 +1,22 @@
-'use client'
-
-import { PostCard, PostCardSkeleton } from '@/components/post-card'
-import { api } from '@/lib/trpc/client'
+import { PostCard } from '@/components/post-card'
+import { api } from '@/lib/trpc/server'
 import type { NextPage } from 'next'
+import { redirect } from 'next/navigation'
 
-const Page: NextPage = () => {
-  const { data, isLoading } = api.post.getAll.useQuery()
-  if (isLoading)
+const Page: NextPage = async () => {
+  try {
+    const posts = await api.post.getAll.query()
+
     return (
       <main className="container max-w-screen-md flex-grow space-y-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <PostCardSkeleton key={i} />
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} />
         ))}
       </main>
     )
-
-  return (
-    <main className="container max-w-screen-md flex-grow space-y-4">
-      {data?.map((post) => <PostCard key={post.id} post={post} />)}
-    </main>
-  )
+  } catch (e) {
+    return redirect('/auth/signin')
+  }
 }
 
 export default Page

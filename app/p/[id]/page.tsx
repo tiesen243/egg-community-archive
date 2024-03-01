@@ -52,7 +52,7 @@ const Page: NextPage<Props> = async ({ params }) => {
 
         <Separator className="my-4" />
 
-        <article dangerouslySetInnerHTML={{ __html: postDetail.content }} />
+        <p>{postDetail.content}</p>
 
         {postDetail.image && (
           <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />

@@ -12,6 +12,13 @@ export const userRouter = trpc.createRouter({
   getById: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
+      include: {
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
+      },
     })
 
     if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
@@ -19,6 +26,7 @@ export const userRouter = trpc.createRouter({
   }),
 
   search: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
+    if (!input) return []
     return await ctx.db.user.findMany({
       where: {
         name: {
