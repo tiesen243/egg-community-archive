@@ -41,16 +41,28 @@ export const postRouter = trpc.createRouter({
     })
   }),
 
-  search: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
+  search: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
     if (!input) return []
-    return await ctx.db.post.findMany({
+    const posts = await ctx.db.post.findMany({
       where: {
         content: {
           contains: input,
           mode: 'insensitive',
         },
       },
-      include: { author: true },
+      include: { author: true, _count: { select: { comments: true, likes: true } } },
+    })
+
+    const isLiked = await ctx.db.like.findMany({
+      where: { userId: ctx.session.user.id },
+      select: { postId: true },
+    })
+
+    return posts.map((p) => {
+      return {
+        ...p,
+        isLiked: isLiked.some((l) => l.postId === p.id),
+      }
     })
   }),
 

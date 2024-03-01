@@ -39,7 +39,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           )}
         </Link>
 
-        <div className="ml-12 flex">
+        <div className="ml-12 flex text-muted-foreground">
           <form action={likePost}>
             <button type="submit" className="flex gap-2">
               <HeartIcon className={post.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
