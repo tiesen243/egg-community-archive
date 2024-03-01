@@ -6,7 +6,7 @@ export const registerSchema = z
     email: z.string().email(),
     password: z
       .string()
-      .regex(/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).{10,16}$/, {
+      .regex(/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).{8,16}$/, {
         message:
           'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
       }),
