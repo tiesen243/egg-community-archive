@@ -39,6 +39,7 @@ export const userRouter = trpc.createRouter({
           mode: 'insensitive',
         },
       },
+      orderBy: { createdAt: 'desc' },
     })
   }),
 
