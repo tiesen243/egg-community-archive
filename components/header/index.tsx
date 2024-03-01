@@ -16,7 +16,7 @@ const Header: NextPage = async () => {
         className={`container grid place-items-end gap-4 ${session?.user ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2'}`}
       >
         <Link href="/" className="flex items-center gap-2 place-self-start whitespace-nowrap text-xl font-bold">
-          <Image src="/logo.svg" alt={siteConfig.applicationName} className="dark:invert" width={32} height={32} />
+          <Image src="/logo.svg" alt={siteConfig.applicationName.toLowerCase().replace(/\s/g, "-")} className="dark:invert" width={32} height={32} />
           <span>{siteConfig.applicationName}</span>
         </Link>
 
