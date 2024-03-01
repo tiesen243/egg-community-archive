@@ -3,8 +3,8 @@ import { z } from 'zod'
 export const createSchema = z.object({
   content: z
     .string()
-    .min(4, {
-      message: 'Post must be at least 4 characters long',
+    .min(1, {
+      message: 'Post must be at least 1 characters long',
     })
     .max(2000, {
       message: 'Post must be at most 2000 characters long',
@@ -18,8 +18,8 @@ export const commentSchema = z.object({
   id: z.string(),
   comment: z
     .string()
-    .min(4, {
-      message: 'Comment must be at least 4 characters long',
+    .min(1, {
+      message: 'Comment must be at least 1 characters long',
     })
     .max(500, {
       message: 'Comment must be at most 500 characters long',
