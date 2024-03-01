@@ -21,7 +21,10 @@ model User {
   bio   String? @db.String
   image String? @db.String
 
-
+  followers    User[]   @relation("Follows", fields: [followerIDs], references: [id])
+  followerIDs  String[] @db.ObjectId
+  following    User[]   @relation("Follows", fields: [followingIDs], references: [id])
+  followingIDs String[] @db.ObjectId
 
   posts    Post[]
   likes    Like[]
@@ -43,12 +46,12 @@ model Post {
 }
 
 model Like {
-  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  user  User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
 
-  post  Post @relation(fields: [postId], references: [id],onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String @db.ObjectId
 
   @@index([userId])

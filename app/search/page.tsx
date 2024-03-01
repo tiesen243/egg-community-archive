@@ -1,13 +1,11 @@
 import type { NextPage } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { FormField } from '@/components/form-field'
-import { PostCard } from '@/components/post-card'
-import { Card } from '@/components/ui/card'
-import UserAvatar from '@/components/user-avatar'
-import { api } from '@/lib/trpc/server'
+import { PostCard } from '@/components/post'
 import { Button } from '@/components/ui/button'
+import UserCard from '@/components/user-card'
+import { api } from '@/lib/trpc/server'
 
 interface Props {
   searchParams: { q: string }
@@ -36,15 +34,7 @@ const Page: NextPage<Props> = async ({ searchParams }) => {
         <section className="space-y-4">
           <h2 className="text-3xl font-bold">Users</h2>
           {users.map((user) => (
-            <Card
-              key={user.id}
-              className="cursor-pointer bg-secondary/10 shadow-lg transition-all ease-linear hover:bg-secondary"
-            >
-              <Link href={`/u/${user.id}`} className="flex items-center gap-4 p-6">
-                <UserAvatar user={user} />
-                {user.name}
-              </Link>
-            </Card>
+            <UserCard key={user.id} user={user} />
           ))}
         </section>
       )}

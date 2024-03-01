@@ -6,10 +6,10 @@ import { api } from '@/lib/trpc/client'
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
 import { toast } from 'sonner'
-import { FormField } from './form-field'
-import { Button } from './ui/button'
+import { FormField } from '@/components/form-field'
+import { Button } from '@/components/ui/button'
 
-const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
+export const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
   const { refresh } = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const { mutate, error, isLoading } = api.post.comment.useMutation({
@@ -43,5 +43,3 @@ const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
     </form>
   )
 }
-
-export default CommentPost

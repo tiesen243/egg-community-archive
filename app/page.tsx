@@ -1,7 +1,7 @@
-import { PostCard } from '@/components/post-card'
+import { PostCard, PublicPostCard } from '@/components/post'
 import { api } from '@/lib/trpc/server'
 import type { NextPage } from 'next'
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 const Page: NextPage = async () => {
   try {
@@ -15,7 +15,21 @@ const Page: NextPage = async () => {
       </main>
     )
   } catch (e) {
-    return redirect('/auth/signin')
+    const posts = await api.post.getPublicContent.query()
+    return (
+      <main className="container max-w-screen-md flex-grow space-y-4">
+        <p className="space-x-2 text-center text-2xl font-bold">
+          <span>Login</span>
+          <Link href="/auth/signin" className="text-blue-500 underline-offset-4 hover:underline">
+            here
+          </Link>
+          <span>to unlock more content and features</span>
+        </p>
+        {posts.map((post) => (
+          <PublicPostCard key={post.id} post={post} />
+        ))}
+      </main>
+    )
   }
 }
 

@@ -1,18 +1,22 @@
-import type { Post, User } from '@prisma/client'
 import { MoreHorizontalIcon } from 'lucide-react'
+import type { Comment, User } from '@prisma/client'
 
-import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import * as dropdownMenu from '@/components/ui/dropdown-menu'
-import UpdatePost from '@/components/update-post'
+import { auth } from '@/server/auth'
 import { api } from '@/lib/trpc/server'
-import { deleteFile } from '@/lib/cloudinary'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
+import UpdateComment from './update'
 
 interface Props {
-  post: Post & {
+  comment: Comment & {
     author: User
   }
 }
-const PostMenu: React.FC<Props> = ({ post }) => {
+
+export const CommentMenu: React.FC<Props> = async ({ comment }) => {
+  const session = await auth()
+  if (comment.author.id !== session?.user.id) return null
+
   return (
     <Dialog>
       <dropdownMenu.DropdownMenu>
@@ -22,25 +26,23 @@ const PostMenu: React.FC<Props> = ({ post }) => {
 
         <dropdownMenu.DropdownMenuContent>
           <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem>Edit post</dropdownMenu.DropdownMenuItem>
+            <dropdownMenu.DropdownMenuItem>Edit Comment</dropdownMenu.DropdownMenuItem>
           </DialogTrigger>
+
           <dropdownMenu.DropdownMenuItem asChild>
             <form
               action={async () => {
                 'use server'
-                await api.post.delete.mutate(post.id)
-                post.image && deleteFile(post.image)
+                await api.post.deleteComment.mutate(comment.id)
               }}
             >
-              <button>Delete post</button>
+              <button type="submit">Delete Comment</button>
             </form>
           </dropdownMenu.DropdownMenuItem>
         </dropdownMenu.DropdownMenuContent>
       </dropdownMenu.DropdownMenu>
 
-      <UpdatePost post={post} />
+      <UpdateComment id={comment.id} content={comment.content} />
     </Dialog>
   )
 }
-
-export default PostMenu

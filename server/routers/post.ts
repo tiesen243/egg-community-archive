@@ -5,6 +5,14 @@ import { revalidatePath } from 'next/cache'
 
 export const postRouter = trpc.createRouter({
   // [GET]
+  getPublicContent: trpc.publicProcedure.query(async ({ ctx }) => {
+    const posts = await ctx.db.post.findMany({
+      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
+    return posts
+  }),
+
   getAll: trpc.protectedProcedure.query(async ({ ctx }) => {
     const post = await ctx.db.post.findMany({
       include: { author: true, _count: { select: { comments: true, likes: true } } },
@@ -41,6 +49,27 @@ export const postRouter = trpc.createRouter({
     })
   }),
 
+  getByFollowing: trpc.protectedProcedure.query(async ({ ctx }) => {
+    const following = await ctx.db.user.findUnique({ where: { id: ctx.session.user.id }, select: { following: true } })
+    const posts = await ctx.db.post.findMany({
+      where: {
+        authorId: { in: following?.following.map((f) => f.id) },
+      },
+      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
+    const isLiked = await ctx.db.like.findMany({
+      where: { userId: ctx.session.user.id },
+      select: { postId: true },
+    })
+    return posts.map((p) => {
+      return {
+        ...p,
+        isLiked: isLiked.some((l) => l.postId === p.id),
+      }
+    })
+  }),
+
   search: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
     if (!input) return []
     const posts = await ctx.db.post.findMany({
@@ -51,6 +80,7 @@ export const postRouter = trpc.createRouter({
         },
       },
       include: { author: true, _count: { select: { comments: true, likes: true } } },
+      orderBy: { createdAt: 'desc' },
     })
 
     const isLiked = await ctx.db.like.findMany({
@@ -128,10 +158,6 @@ export const postRouter = trpc.createRouter({
         },
       })
     }
-
-    revalidatePath(`/p/${input}`)
-    revalidatePath(`/u/${ctx.session.user.id}`)
-    revalidatePath('/')
   }),
 
   // [PATCH]

@@ -1,28 +1,33 @@
 import bcrypt from 'bcryptjs'
 
+import { deleteFile } from '@/lib/cloudinary'
 import * as user from '@/server/schemas/user'
 import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
-import { deleteFile } from '@/lib/cloudinary'
 
 const reply_to = process.env.EMAIL!
 
 export const userRouter = trpc.createRouter({
   // [GET]
-  getById: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
+  getById: trpc.protectedProcedure.input(user.string).query(async ({ ctx, input }) => {
     const user = await ctx.db.user.findUnique({
       where: { id: input },
       include: {
         _count: {
           select: {
             posts: true,
+            followers: true,
+            following: true,
           },
         },
       },
     })
+    const isFollowing = await ctx.db.user.findFirst({
+      where: { id: input, followers: { some: { id: ctx.session.user.id } } },
+    })
 
     if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
-    return user
+    return { ...user, isFollowing: !!isFollowing }
   }),
 
   search: trpc.publicProcedure.input(user.string).query(async ({ ctx, input }) => {
@@ -35,6 +40,24 @@ export const userRouter = trpc.createRouter({
         },
       },
     })
+  }),
+
+  getFollowers: trpc.protectedProcedure.input(user.string).query(async ({ ctx, input }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: input },
+      include: { followers: true },
+    })
+    if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
+    return user
+  }),
+
+  getFollowing: trpc.protectedProcedure.input(user.string).query(async ({ ctx, input }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: input },
+      include: { following: true },
+    })
+    if (!user) throw new TRPCError({ message: 'User not found', code: 'NOT_FOUND' })
+    return user
   }),
 
   // [POST]
@@ -70,6 +93,35 @@ export const userRouter = trpc.createRouter({
     return {
       message: 'User created successfully',
     }
+  }),
+
+  follow: trpc.protectedProcedure.input(user.string).mutation(async ({ ctx, input }) => {
+    const user = await ctx.db.user.findUnique({ where: { id: input } })
+    if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' })
+
+    let addedFollow = false
+    const followed = await ctx.db.user.findFirst({
+      where: { id: input, followers: { some: { id: ctx.session.user.id } } },
+    })
+    if (followed) {
+      await ctx.db.user.update({
+        where: { id: input },
+        data: {
+          followers: { disconnect: { id: ctx.session.user.id } },
+        },
+      })
+      addedFollow = false
+    } else {
+      await ctx.db.user.update({
+        where: { id: input },
+        data: {
+          followers: { connect: { id: ctx.session.user.id } },
+        },
+      })
+      addedFollow = true
+    }
+
+    return { addFollow: addedFollow }
   }),
 
   // [PATCH]

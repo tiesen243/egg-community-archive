@@ -1,10 +1,13 @@
 import type { Metadata, NextPage, ResolvingMetadata } from 'next'
 
-import { PostCard } from '@/components/post-card'
-import PostMenu from '@/components/post-menu'
+import { PostMenu } from '@/components/post'
+import { PostCard } from '@/components/post/card'
+import { buttonVariants } from '@/components/ui/button'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
 import { auth } from '@/server/auth'
+import Link from 'next/link'
+import FollowBtn from './_follow-btn'
 
 interface Props {
   params: { id: string }
@@ -47,10 +50,26 @@ const Page: NextPage<Props> = async ({ params }) => {
 
           <p className="text-muted-foreground">
             {user._count.posts} {user._count.posts === 1 ? 'post' : 'posts'}
+            <span className="mx-2">•</span>
+            <Link href={`/u/${user.id}/followers`}>
+              {user._count.followers} {user._count.followers === 1 ? 'follower' : 'followers'}
+            </Link>
+            <span className="mx-2">•</span>
+            <Link href={`/u/${user.id}/followings`}>
+              {user._count.following} {user._count.following === 1 ? 'following' : 'followings'}
+            </Link>
           </p>
         </div>
         <UserAvatar user={user} className="size-24" />
       </section>
+
+      {user.id !== session?.user?.id ? (
+        <FollowBtn user={user} />
+      ) : (
+        <Link href="/settings" className={buttonVariants()}>
+          Edit profile
+        </Link>
+      )}
 
       <ul className="space-y-4">
         {userPosts.map((post) => (
