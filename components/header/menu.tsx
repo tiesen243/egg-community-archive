@@ -8,7 +8,9 @@ import ThemeBtn from './theme-btn'
 const Menu: React.FC = () => {
   const logout = async () => {
     'use server'
-    await signOut()
+    await signOut({
+      redirectTo: '/',
+    })
   }
   return (
     <dropdownMenu.DropdownMenu>
