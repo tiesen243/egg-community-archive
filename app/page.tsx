@@ -22,7 +22,7 @@ const Page: NextPage = async () => {
           <Link href="/auth/signin" className="text-blue-500 underline-offset-4 hover:underline">
             Login here
           </Link>
-          {' '}to unlock more content and features</span>
+          {' '}to unlock more content and features
         </p>
         {posts.map((post) => (
           <PublicPostCard key={post.id} post={post} />
