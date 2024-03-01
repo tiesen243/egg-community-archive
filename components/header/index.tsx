@@ -13,7 +13,7 @@ import Nav from './nav'
 const Header: NextPage = async () => {
   const session = await auth()
   return (
-    <header className="sticky inset-0 z-50 bg-background/70 py-4 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky inset-0 z-40 bg-background/70 py-4 backdrop-blur-xl backdrop-saturate-150">
       <div
         className={cn(
           'container grid gap-4 md:place-items-center',
@@ -26,7 +26,7 @@ const Header: NextPage = async () => {
             <span>{siteConfig.applicationName}</span>
           </Link>
 
-          <div className="block md:hidden">
+          <div className="block md:hidden z-50">
             {!session?.user ? (
               <Link href="/auth/signin" passHref legacyBehavior>
                 <Button variant="ghost">Login</Button>
