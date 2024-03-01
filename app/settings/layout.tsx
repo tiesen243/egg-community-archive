@@ -14,7 +14,8 @@ const SettingsLayout: NextPage<React.PropsWithChildren> = async ({ children }) =
   if (!session || !session.user) redirect('/auth/signin')
   return (
     <main className="container max-w-screen-md flex-grow">
-      <Tab>{children}</Tab>
+      <Tab />
+      {children}
     </main>
   )
 }

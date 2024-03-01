@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const Tab: React.FC<React.PropsWithChildren> = ({ children }) => {
+const Tab: React.FC = () => {
   const pathName = usePathname()
   const activeTab = pathName.split('/').pop() === 'security' ? 'security' : 'info'
 
@@ -19,8 +19,6 @@ const Tab: React.FC<React.PropsWithChildren> = ({ children }) => {
           <Link href="/settings/security">Security</Link>
         </TabsTrigger>
       </TabsList>
-
-      {children}
     </Tabs>
   )
 }
