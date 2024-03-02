@@ -2,6 +2,7 @@ import { PostCard } from '@/components/post'
 import { api } from '@/lib/trpc/server'
 import type { NextPage } from 'next'
 
+export const dynamic = 'force-dynamic'
 const Page: NextPage = async () => {
   const posts = await api.post.getByFollowing.query()
 

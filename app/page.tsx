@@ -3,6 +3,7 @@ import { api } from '@/lib/trpc/server'
 import type { NextPage } from 'next'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
 const Page: NextPage = async () => {
   try {
     const posts = await api.post.getAll.query()
