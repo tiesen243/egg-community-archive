@@ -18,12 +18,11 @@ const Page: NextPage = async () => {
     const posts = await api.post.getPublicContent.query()
     return (
       <main className="container max-w-screen-md flex-grow space-y-4">
-        <p className="space-x-2 text-center text-2xl font-bold">
-          <span>Login</span>
+        <p className="text-center text-2xl font-bold">
           <Link href="/auth/signin" className="text-blue-500 underline-offset-4 hover:underline">
-            here
+            Login here
           </Link>
-          <span>to unlock more content and features</span>
+          {' '}to unlock more content and features
         </p>
         {posts.map((post) => (
           <PublicPostCard key={post.id} post={post} />
