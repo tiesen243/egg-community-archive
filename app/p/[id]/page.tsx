@@ -39,40 +39,42 @@ const Page: NextPage<Props> = async ({ params }) => {
     if (!postDetail) throw new Error('Post not found')
 
     return (
-      <main className="container max-w-screen-md flex-grow">
-        <Link href={`/u/${postDetail.authorId}`} className="flex items-center gap-2">
-          <UserAvatar user={postDetail.author} />
-          <div>
-            <p>{postDetail.author.name}</p>
-            <span className="text-muted-foreground">{postDetail.createdAt.toDateString()}</span>
-          </div>
-        </Link>
+      <>
+        <main className="container max-w-screen-md flex-grow">
+          <Link href={`/u/${postDetail.authorId}`} className="mb-4 flex items-center gap-2">
+            <UserAvatar user={postDetail.author} />
+            <div>
+              <p>{postDetail.author.name}</p>
+              <span className="text-muted-foreground">{postDetail.createdAt.toDateString()}</span>
+            </div>
+          </Link>
 
-        <Separator className="my-4" />
+          <p>{postDetail.content}</p>
 
-        <p>{postDetail.content}</p>
+          {postDetail.image && (
+            <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />
+          )}
 
-        {postDetail.image && (
-          <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />
-        )}
+          <Separator className="my-4" />
 
-        <Separator className="my-4" />
+          <section className="space-y-4">
+            <CommentPost postId={postDetail.id} authorName={postDetail.author.name} className="hidden md:flex" />
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Comments</h2>
+            <ul className="space-y-4">
+              {postDetail.comments.map((comment) => (
+                <li key={comment.id}>
+                  <CommentMenu comment={comment} />
+                  <CommentCard comment={comment} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        </main>
 
-          <CommentPost postId={postDetail.id} />
-
-          <ul>
-            {postDetail.comments.map((comment) => (
-              <li key={comment.id}>
-                <CommentMenu comment={comment} />
-                <CommentCard comment={comment} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      </main>
+        <footer className="sticky bottom-0 left-0 z-50 block border-t bg-background/70 py-4 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+          <CommentPost postId={postDetail.id} authorName={postDetail.author.name} className="container" />
+        </footer>
+      </>
     )
   } catch (e) {
     return notFound()

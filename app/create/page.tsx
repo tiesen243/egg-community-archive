@@ -1,12 +1,14 @@
 'use client'
 
-import { FormField } from '@/components/form-field'
-import { Button } from '@/components/ui/button'
-import { createPost } from '@/server/actions'
 import type { NextPage } from 'next'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
+
+import { FormField } from '@/components/form-field'
+import { Button } from '@/components/ui/button'
+import { createPost } from '@/server/actions'
 
 interface Error {
   content?: string
@@ -49,10 +51,16 @@ export default Page
 
 const PostButton: React.FC = () => {
   const { pending } = useFormStatus()
+  const { back } = useRouter()
 
   return (
-    <Button type="submit" className="w-full" isLoading={pending}>
-      Post
-    </Button>
+    <div className="grid grid-cols-1 gap-4">
+      <Button type="submit" className="w-full" isLoading={pending}>
+        Post
+      </Button>
+      <Button type="button" variant="secondary" className="w-full md:hidden" onClick={back}>
+        Cancel
+      </Button>
+    </div>
   )
 }

@@ -31,7 +31,6 @@ import { Toaster } from '@/components/ui/sonner'
 
 import Provider from '@/components/provider'
 import './globals.css'
-import Nav from '@/components/nav'
 const RootLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
   <html lang="en" suppressHydrationWarning>
     <body className={inter.variable}>
@@ -39,10 +38,6 @@ const RootLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
         <Header />
 
         {children}
-
-        <footer className="sticky bottom-0 left-0 z-50 block border-t bg-background/70 py-2 backdrop-blur-xl backdrop-saturate-150 md:hidden">
-          <Nav className="container" />
-        </footer>
 
         <Toaster />
       </Provider>

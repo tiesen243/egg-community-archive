@@ -20,8 +20,8 @@ export const CommentMenu: React.FC<Props> = async ({ comment }) => {
   return (
     <Dialog>
       <dropdownMenu.DropdownMenu>
-        <dropdownMenu.DropdownMenuTrigger asChild>
-          <MoreHorizontalIcon className="absolute right-4 top-4 z-20 hover:text-primary/50" />
+        <dropdownMenu.DropdownMenuTrigger className="absolute right-4 top-4 z-20 cursor-pointer select-none hover:text-primary/50">
+          <MoreHorizontalIcon />
         </dropdownMenu.DropdownMenuTrigger>
 
         <dropdownMenu.DropdownMenuContent>

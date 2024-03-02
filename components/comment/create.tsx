@@ -9,7 +9,13 @@ import { toast } from 'sonner'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 
-export const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
+interface Props {
+  postId: string
+  authorName: string
+  className?: string
+}
+
+export const CommentPost: React.FC<Props> = ({ postId, authorName, className = '' }) => {
   const { refresh } = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const { mutate, error, isLoading } = api.post.comment.useMutation({
@@ -25,7 +31,7 @@ export const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
   return (
     <form
       ref={formRef}
-      className="flex gap-2"
+      className={`flex space-x-2 ${className}`}
       action={(formData: FormData) => {
         const comment = String(formData.get('comment'))
         mutate({ id: postId, comment: comment })
@@ -33,7 +39,7 @@ export const CommentPost: React.FC<{ postId: string }> = ({ postId }) => {
     >
       <FormField
         name="comment"
-        placeholder="Write a comment..."
+        placeholder={`Reply to ${authorName}...`}
         className="flex-grow"
         message={String(error?.data?.zodError?.fieldErrors?.comment ?? '')}
       />
