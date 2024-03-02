@@ -3,9 +3,14 @@
 import { ChevronLeftIcon, HomeIcon, PencilIcon, RssIcon, SearchIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Button } from '../ui/button'
 
-const Nav: React.FC<{ userId: string }> = ({ userId }) => {
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
+
+const Nav: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const { data } = useSession()
+  if (!data || !data?.user) return null
   const pathName = usePathname()
   const links = [
     {
@@ -25,7 +30,7 @@ const Nav: React.FC<{ userId: string }> = ({ userId }) => {
       icon: PencilIcon,
     },
     {
-      href: `/u/${userId}`,
+      href: `/u/${data.user.id}`,
       icon: UserIcon,
     },
   ]
@@ -33,7 +38,7 @@ const Nav: React.FC<{ userId: string }> = ({ userId }) => {
   const { back } = useRouter()
 
   return (
-    <nav className="col-span-2 flex w-full select-none items-center justify-between place-self-center md:col-span-1">
+    <nav className={cn('flex w-full select-none items-center justify-between', className)}>
       {!links.some(({ href }) => href === pathName) && (
         <Button
           onClick={back}

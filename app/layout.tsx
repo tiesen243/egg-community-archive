@@ -26,12 +26,12 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 // Layout Components
-import Footer from '@/components/footer'
 import Header from '@/components/header'
 import { Toaster } from '@/components/ui/sonner'
 
 import Provider from '@/components/provider'
 import './globals.css'
+import Nav from '@/components/nav'
 const RootLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
   <html lang="en" suppressHydrationWarning>
     <body className={inter.variable}>
@@ -39,7 +39,10 @@ const RootLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
         <Header />
         {children}
         <Toaster />
-        <Footer />
+
+        <footer className="sticky bottom-0 left-0 block border-t bg-background/70 py-2 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+          <Nav className="container" />
+        </footer>
       </Provider>
     </body>
   </html>

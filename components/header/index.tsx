@@ -6,33 +6,26 @@ import { siteConfig } from '@/lib/site'
 import { auth } from '@/server/auth'
 import { Button } from '../ui/button'
 import Menu from './menu'
-import Nav from './nav'
+import Nav from '../nav'
+import { cn } from '@/lib/utils'
 
 const Header: NextPage = async () => {
   const session = await auth()
   return (
-    <header className="sticky inset-0 z-40 bg-background/70 py-4 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky inset-0 z-50 border-b bg-background/70 py-4 backdrop-blur-xl backdrop-saturate-150">
       <div
-        className={`container grid place-items-end gap-4 ${session?.user ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2'}`}
+        className={cn('container flex items-center justify-between gap-4', {
+          'place-items-center md:grid md:grid-cols-3': session?.user,
+        })}
       >
-        <Link href="/" className="flex items-center gap-2 place-self-start whitespace-nowrap text-xl font-bold">
+        <Link href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
           <Image src="/logo.svg" alt={siteConfig.applicationName} className="dark:invert" width={32} height={32} />
           <span>{siteConfig.applicationName}</span>
         </Link>
 
-        <div className="md:hidden">
-          {!session?.user ? (
-            <Link href="/auth/signin" passHref legacyBehavior>
-              <Button variant="ghost">Login</Button>
-            </Link>
-          ) : (
-            <Menu />
-          )}
-        </div>
+        {session?.user && <Nav className="hidden md:flex" />}
 
-        {session?.user && <Nav userId={session.user.id} />}
-
-        <div className="hidden md:block">
+        <div>
           {!session?.user ? (
             <Link href="/auth/signin" passHref legacyBehavior>
               <Button variant="ghost">Login</Button>
