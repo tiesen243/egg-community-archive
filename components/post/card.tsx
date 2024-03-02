@@ -96,10 +96,8 @@ export const PostCardSkeleton: React.FC = () => (
         <Skeleton className="h-20 w-full" />
       </div>
 
-      <div className="ml-12 flex items-center text-muted-foreground">
-        <Skeleton className="h-6 w-16" />
-        <span className="mx-2">•</span>
-        <Skeleton className="h-6 w-16" />
+      <div className="ml-12">
+        <Skeleton className="h-6 w-36" />
       </div>
     </div>
   </Card>
