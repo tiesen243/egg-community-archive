@@ -60,13 +60,13 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
     <div className="absolute left-5 h-full w-[1px] bg-muted transition-colors group-hover:bg-ring" />
 
     <div className="flex w-full flex-col">
-      <div className="p-4 pl-12">
+      <Link href={`/p/${post.id}`} className="p-4 pl-12">
         <p>{post.content}</p>
 
         {post.image && (
           <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
         )}
-      </div>
+      </Link>
 
       <div className="ml-12 flex text-muted-foreground">
         <span>{post._count.likes} likes</span>
