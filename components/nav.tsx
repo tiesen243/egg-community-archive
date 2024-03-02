@@ -6,14 +6,11 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useSession } from 'next-auth/react'
 
-const Nav: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const { data } = useSession()
+const Nav: React.FC<{ userId: string; className?: string }> = ({ userId, className = '' }) => {
   const pathName = usePathname()
   const { back } = useRouter()
 
-  if (!data || !data?.user) return null
   const links = [
     {
       href: '/',
@@ -32,7 +29,7 @@ const Nav: React.FC<{ className?: string }> = ({ className = '' }) => {
       icon: PencilIcon,
     },
     {
-      href: `/u/${data.user.id}`,
+      href: `/u/${userId}`,
       icon: UserIcon,
     },
   ]

@@ -29,7 +29,7 @@ const Header: NextPage = async () => {
           <span>{siteConfig.applicationName}</span>
         </Link>
 
-        {session?.user && <Nav className="hidden md:flex" />}
+        {session?.user && <Nav className="hidden md:flex" userId={session.user.id} />}
 
         <div>
           {!session?.user ? (
