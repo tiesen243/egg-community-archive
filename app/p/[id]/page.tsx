@@ -63,7 +63,7 @@ const Page: NextPage<Props> = async ({ params }) => {
 
           <CommentPost postId={postDetail.id} />
 
-          <ul className="space-y-4">
+          <ul>
             {postDetail.comments.map((comment) => (
               <li key={comment.id}>
                 <CommentMenu comment={comment} />

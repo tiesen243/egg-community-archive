@@ -9,7 +9,7 @@ const Tab: React.FC = () => {
   const activeTab = pathName.split('/').pop() === 'security' ? 'security' : 'info'
 
   return (
-    <Tabs defaultValue={activeTab} className="w-full">
+    <Tabs defaultValue={activeTab} className="mb-4 w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="info" asChild>
           <Link href="/settings">Infomation</Link>

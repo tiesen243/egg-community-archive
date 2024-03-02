@@ -37,12 +37,14 @@ const RootLayout: NextPage<React.PropsWithChildren> = ({ children }) => (
     <body className={inter.variable}>
       <Provider>
         <Header />
-        {children}
-        <Toaster />
 
-        <footer className="sticky bottom-0 left-0 block border-t bg-background/70 py-2 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+        {children}
+
+        <footer className="sticky bottom-0 left-0 z-50 block border-t bg-background/70 py-2 backdrop-blur-xl backdrop-saturate-150 md:hidden">
           <Nav className="container" />
         </footer>
+
+        <Toaster />
       </Provider>
     </body>
   </html>

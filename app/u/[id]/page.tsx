@@ -55,9 +55,7 @@ const Page: NextPage<Props> = async ({ params }) => {
               {user._count.followers} {user._count.followers === 1 ? 'follower' : 'followers'}
             </Link>
             <span className="mx-2">•</span>
-            <Link href={`/u/${user.id}/followings`}>
-              {user._count.following} {user._count.following === 1 ? 'following' : 'followings'}
-            </Link>
+            <Link href={`/u/${user.id}/following`}>{user._count.following} following</Link>
           </p>
         </div>
         <UserAvatar user={user} className="size-24" />

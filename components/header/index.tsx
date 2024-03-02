@@ -18,7 +18,7 @@ const Header: NextPage = async () => {
           'place-items-center md:grid md:grid-cols-3': session?.user,
         })}
       >
-        <Link href="/" className="flex items-center gap-2 place-self-start whitespace-nowrap text-xl font-bold">
+        <Link href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
           <Image
             src="/logo.svg"
             alt={siteConfig.applicationName.toLowerCase().replace(/\s/g, '-')}

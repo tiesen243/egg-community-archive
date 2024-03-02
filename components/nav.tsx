@@ -10,15 +10,17 @@ import { useSession } from 'next-auth/react'
 
 const Nav: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { data } = useSession()
-  if (!data || !data?.user) return null
   const pathName = usePathname()
+  const { back } = useRouter()
+
+  if (!data || !data?.user) return null
   const links = [
     {
       href: '/',
       icon: HomeIcon,
     },
     {
-      href: '/followings',
+      href: '/following',
       icon: RssIcon,
     },
     {
@@ -34,8 +36,6 @@ const Nav: React.FC<{ className?: string }> = ({ className = '' }) => {
       icon: UserIcon,
     },
   ]
-
-  const { back } = useRouter()
 
   return (
     <nav className={cn('flex w-full select-none items-center justify-between', className)}>

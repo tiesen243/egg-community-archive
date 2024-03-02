@@ -5,6 +5,7 @@ import Link from 'next/link'
 import UserAvatar from '@/components/user-avatar'
 import { Card } from '../ui/card'
 import LikeBtn from './like-btn'
+import { Skeleton } from '../ui/skeleton'
 
 export interface PostCardProps {
   post: Post & {
@@ -16,7 +17,7 @@ export interface PostCardProps {
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => (
   <Card className="group border-none">
-    <Link href={`/u/${post.author.id}`} className="flex flex-row items-center gap-2 space-y-0">
+    <Link href={`/u/${post.author.id}`} className="z-10 flex flex-row items-center gap-2">
       <UserAvatar user={post.author} className="ring-2 ring-muted transition-colors group-hover:ring-ring" />
       <div>
         <p>{post.author.name}</p>
@@ -24,13 +25,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
       </div>
     </Link>
 
+    <div className="absolute left-5 h-full w-[1px] bg-muted transition-colors group-hover:bg-ring" />
+
     <div className="flex w-full flex-col">
-      <div className="absolute left-4 h-full w-[1px] bg-muted transition-colors group-hover:bg-ring" />
       <Link href={`/p/${post.id}`} className="p-4 pl-12">
-        <p className="mb-4">{post.content}</p>
+        <p>{post.content}</p>
 
         {post.image && (
-          <Image src={post.image} alt={post.id} width={500} height={200} className="h-auto w-full rounded" />
+          <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
         )}
       </Link>
 
@@ -46,22 +48,23 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
 )
 
 export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
-  <Card className="border-none">
-    <section className="flex flex-row items-center gap-2 space-y-0">
-      <UserAvatar user={post.author} />
+  <Card className="group cursor-pointer border-none">
+    <section className="z-10 flex flex-row items-center gap-2">
+      <UserAvatar user={post.author} className="ring-2 ring-muted transition-colors group-hover:ring-ring" />
       <div>
         <p>{post.author.name}</p>
         <span className="text-muted-foreground">{post.createdAt.toDateString()}</span>
       </div>
     </section>
 
+    <div className="absolute left-5 h-full w-[1px] bg-muted transition-colors group-hover:bg-ring" />
+
     <div className="flex w-full flex-col">
-      <div className="absolute left-4 h-full w-[1px] bg-muted" />
       <div className="p-4 pl-12">
-        <p className="mb-4">{post.content}</p>
+        <p>{post.content}</p>
 
         {post.image && (
-          <Image src={post.image} alt={post.id} width={500} height={200} className="h-auto w-full rounded" />
+          <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
         )}
       </div>
 
@@ -71,6 +74,32 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
         <span className="mx-2">•</span>
 
         <span>{post._count.comments} replies</span>
+      </div>
+    </div>
+  </Card>
+)
+
+export const PostCardSkeleton: React.FC = () => (
+  <Card className="border-none">
+    <section className="z-10 flex flex-row items-center gap-2">
+      <Skeleton className="size-10 rounded-full ring-2 ring-muted" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-16" />
+      </div>
+    </section>
+
+    <div className="absolute left-5 h-full w-[1px] bg-muted" />
+
+    <div className="flex w-full flex-col">
+      <div className="p-4 pl-12">
+        <Skeleton className="h-20 w-full" />
+      </div>
+
+      <div className="ml-12 flex items-center text-muted-foreground">
+        <Skeleton className="h-6 w-16" />
+        <span className="mx-2">•</span>
+        <Skeleton className="h-6 w-16" />
       </div>
     </div>
   </Card>
