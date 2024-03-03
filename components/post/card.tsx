@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import UserAvatar from '@/components/user-avatar'
+import MD from '../md'
 import { Card } from '../ui/card'
 import { Skeleton } from '../ui/skeleton'
 import { FakeLikeBtn, LikeBtn } from './like-btn'
@@ -34,7 +35,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
 
     <div className="flex w-full flex-col">
       <Link href={`/p/${post.id}`} className="p-4 pl-12">
-        <p>{post.content}</p>
+        <MD text={post.content} className="prose-sm" />
 
         {post.image && (
           <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
@@ -64,7 +65,7 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
 
     <div className="flex w-full flex-col">
       <Link href={`/p/${post.id}`} className="p-4 pl-12">
-        <p>{post.content}</p>
+        <MD text={post.content} className="prose-sm" />
 
         {post.image && (
           <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />

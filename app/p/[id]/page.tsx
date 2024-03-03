@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { CommentCard, CommentMenu, CommentPost } from '@/components/comment'
+import MD from '@/components/md'
+import { LikeBtn } from '@/components/post/like-btn'
 import { Separator } from '@/components/ui/separator'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
-import { LikeBtn } from '@/components/post/like-btn'
 
 interface Props {
   params: { id: string }
@@ -52,7 +53,7 @@ const Page: NextPage<Props> = async ({ params }) => {
             </div>
           </Link>
 
-          <p>{postDetail.content}</p>
+          <MD text={postDetail.content} />
 
           {postDetail.image && (
             <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />
