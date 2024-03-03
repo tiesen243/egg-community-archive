@@ -7,6 +7,7 @@ import { CommentCard, CommentMenu, CommentPost } from '@/components/comment'
 import { Separator } from '@/components/ui/separator'
 import UserAvatar from '@/components/user-avatar'
 import { api } from '@/lib/trpc/server'
+import { LikeBtn } from '@/components/post/like-btn'
 
 interface Props {
   params: { id: string }
@@ -17,16 +18,18 @@ export const generateMetadata = async ({ params }: Props, parent: ResolvingMetad
   if (!postDetail) return { title: 'Post not found' }
   const previousImages = (await parent).openGraph?.images || []
 
+  const title = `${postDetail.author.name} - ${postDetail.content.length > 20 ? postDetail.content.slice(0, 20) + '...' : postDetail.content}`
+
   return {
-    title: postDetail.author.name,
+    title,
     description: postDetail.content,
     openGraph: {
-      title: postDetail.author.name,
+      title,
       description: postDetail.content,
       images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
     },
     twitter: {
-      title: postDetail.author.name,
+      title,
       description: postDetail.content,
       images: [...(postDetail.image ? [{ url: postDetail?.image }] : []), ...previousImages],
     },
@@ -41,7 +44,7 @@ const Page: NextPage<Props> = async ({ params }) => {
     return (
       <>
         <main className="container max-w-screen-md flex-grow">
-          <Link href={`/u/${postDetail.authorId}`} className="mb-4 flex items-center gap-2">
+          <Link href={`/u/${postDetail.author.id}`} className="mb-4 flex items-center gap-2">
             <UserAvatar user={postDetail.author} />
             <div>
               <p>{postDetail.author.name}</p>
@@ -54,6 +57,12 @@ const Page: NextPage<Props> = async ({ params }) => {
           {postDetail.image && (
             <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />
           )}
+
+          <div className="mt-4 flex text-muted-foreground">
+            <LikeBtn post={postDetail} />
+            <span className="mx-2">•</span>
+            <span>{postDetail.comments.length} replies</span>
+          </div>
 
           <Separator className="my-4" />
 

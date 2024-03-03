@@ -3,7 +3,7 @@ import type { NextPage } from 'next'
 
 const Loading: NextPage = () => (
   <main className="container max-w-screen-md flex-grow space-y-4">
-    {Array.from({ length: 5 }).map((_, i) => (
+    {Array.from({ length: 10 }).map((_, i) => (
       <PostCardSkeleton key={i} />
     ))}
   </main>

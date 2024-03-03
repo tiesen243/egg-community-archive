@@ -1,9 +1,9 @@
 'use client'
 
-import type { User } from '@prisma/client'
 import { Loader2Icon } from 'lucide-react'
 import type { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
@@ -22,6 +22,7 @@ interface Error {
 const Page: NextPage = () => {
   const { data, status } = useSession()
   const [error, setError] = useState<Error>({})
+  const [preview, setPreview] = useState<string | null>()
   const { refresh } = useRouter()
   if (status === 'unauthenticated') return null
 
@@ -45,16 +46,29 @@ const Page: NextPage = () => {
 
       <form action={action}>
         <card.CardContent className="space-y-4">
-          {fields.map((field) => (
-            <FormField
-              key={field.name}
-              {...field}
-              {...(field.type !== 'file'
-                ? { defaultValue: String(data?.user[field.name as keyof User]) }
-                : { accept: 'image/*' })}
-              message={error?.[field.name as keyof Error]}
-            />
-          ))}
+          <FormField name="name" label="Name" defaultValue={data?.user.name} message={error.name} />
+          <FormField name="bio" label="Bio" defaultValue={data?.user.bio ?? ''} message={error.bio} multiline />
+          <FormField
+            name="image"
+            label="Profile picture"
+            type="file"
+            onChange={(e: any) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                const reader = new FileReader()
+                reader.onloadend = () => setPreview(reader.result as string)
+                reader.readAsDataURL(file)
+              }
+            }}
+          />
+
+          <Image
+            src={preview || data?.user.image || ''}
+            alt="Profile picture"
+            width={150}
+            height={150}
+            className="mx-auto aspect-square rounded-full object-cover"
+          />
         </card.CardContent>
 
         <SubmitButton />
@@ -76,22 +90,3 @@ const SubmitButton: React.FC = () => {
     </card.CardFooter>
   )
 }
-
-const fields = [
-  {
-    name: 'name',
-    label: 'Name',
-    type: 'text',
-  },
-  {
-    name: 'bio',
-    label: 'Bio',
-    type: 'text',
-    multiline: true,
-  },
-  {
-    name: 'image',
-    label: 'Profile picture',
-    type: 'file',
-  },
-]

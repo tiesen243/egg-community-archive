@@ -9,96 +9,121 @@ export const postRouter = trpc.createRouter({
     const posts = await ctx.db.post.findMany({
       include: { author: true, _count: { select: { comments: true, likes: true } } },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 4,
     })
-    return posts
+    return posts.map((p) => ({
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      createdAt: p.createdAt,
+      author: p.author,
+      isLiked: false,
+      likes: p._count.likes,
+      replies: p._count.comments,
+    }))
   }),
 
   getAll: trpc.protectedProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db.post.findMany({
-      include: { author: true, _count: { select: { comments: true, likes: true } } },
+    const data = await ctx.db.post.findMany({
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+        likes: ctx.session.user ? { where: { userId: ctx.session.user.id } } : false,
+      },
       orderBy: { createdAt: 'desc' },
     })
-    const isLiked = await ctx.db.like.findMany({
-      where: { userId: ctx.session.user.id },
-      select: { postId: true },
-    })
 
-    return post.map((p) => {
-      return {
-        ...p,
-        isLiked: isLiked.some((l) => l.postId === p.id),
-      }
-    })
+    return data.map((p) => ({
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      createdAt: p.createdAt,
+      author: p.author,
+      isLiked: p.likes.length > 0,
+      likes: p._count.likes,
+      replies: p._count.comments,
+    }))
   }),
 
   getByUser: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
-    const posts = await ctx.db.post.findMany({
+    const data = await ctx.db.post.findMany({
       where: { authorId: input },
-      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+        likes: ctx.session.user ? { where: { userId: ctx.session.user.id } } : false,
+      },
       orderBy: { createdAt: 'desc' },
     })
-    const isLiked = await ctx.db.like.findMany({
-      where: { userId: ctx.session.user.id },
-      select: { postId: true },
-    })
-    return posts.map((p) => {
-      return {
-        ...p,
-        isLiked: isLiked.some((l) => l.postId === p.id),
-      }
-    })
+    return data.map((p) => ({
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      createdAt: p.createdAt,
+      author: p.author,
+      isLiked: p.likes.length > 0,
+      likes: p._count.likes,
+      replies: p._count.comments,
+    }))
   }),
 
   getByFollowing: trpc.protectedProcedure.query(async ({ ctx }) => {
     const following = await ctx.db.user.findUnique({ where: { id: ctx.session.user.id }, select: { following: true } })
-    const posts = await ctx.db.post.findMany({
+    const data = await ctx.db.post.findMany({
       where: {
         authorId: { in: following?.following.map((f) => f.id) },
       },
-      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+        likes: ctx.session.user ? { where: { userId: ctx.session.user.id } } : false,
+      },
       orderBy: { createdAt: 'desc' },
     })
-    const isLiked = await ctx.db.like.findMany({
-      where: { userId: ctx.session.user.id },
-      select: { postId: true },
-    })
-    return posts.map((p) => {
-      return {
-        ...p,
-        isLiked: isLiked.some((l) => l.postId === p.id),
-      }
-    })
+
+    return data.map((p) => ({
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      createdAt: p.createdAt,
+      author: p.author,
+      isLiked: p.likes.length > 0,
+      likes: p._count.likes,
+      replies: p._count.comments,
+    }))
   }),
 
   search: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
     if (!input) return []
-    const posts = await ctx.db.post.findMany({
+    const data = await ctx.db.post.findMany({
       where: {
         content: {
           contains: input,
           mode: 'insensitive',
         },
       },
-      include: { author: true, _count: { select: { comments: true, likes: true } } },
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+        likes: ctx.session.user ? { where: { userId: ctx.session.user.id } } : false,
+      },
       orderBy: { createdAt: 'desc' },
     })
 
-    const isLiked = await ctx.db.like.findMany({
-      where: { userId: ctx.session.user.id },
-      select: { postId: true },
-    })
-
-    return posts.map((p) => {
-      return {
-        ...p,
-        isLiked: isLiked.some((l) => l.postId === p.id),
-      }
-    })
+    return data.map((p) => ({
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      createdAt: p.createdAt,
+      author: p.author,
+      isLiked: p.likes.length > 0,
+      likes: p._count.likes,
+      replies: p._count.comments,
+    }))
   }),
 
-  getById: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
-    return ctx.db.post.findUnique({
+  getById: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
+    const data = await ctx.db.post.findUnique({
       where: { id: input },
       include: {
         author: true,
@@ -106,8 +131,23 @@ export const postRouter = trpc.createRouter({
           orderBy: { createdAt: 'desc' },
           include: { author: true },
         },
+        _count: { select: { comments: true, likes: true } },
+        likes: ctx.session.user ? { where: { userId: ctx.session.user.id } } : false,
       },
     })
+    if (!data) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
+
+    return {
+      id: data.id,
+      content: data.content,
+      image: data.image,
+      createdAt: data.createdAt,
+      author: data.author,
+      isLiked: data.likes.length > 0,
+      likes: data._count.likes,
+      replies: data._count.comments,
+      comments: data.comments,
+    }
   }),
 
   // [POST]
@@ -181,8 +221,8 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedPost) throw new TRPCError({ message: 'Failed to update post', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/users/${ctx.session.user.id}`)
-    revalidatePath(`/post/${input.id}`)
+    revalidatePath(`/u/${ctx.session.user.id}`)
+    revalidatePath(`/p/${input.id}`)
     revalidatePath('/')
     return updatedPost
   }),
@@ -201,7 +241,7 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedComment) throw new TRPCError({ message: 'Failed to update comment', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/post/${comment.postId}`)
+    revalidatePath(`/p/${comment.postId}`)
     return updatedComment
   }),
 
@@ -215,7 +255,7 @@ export const postRouter = trpc.createRouter({
     await ctx.db.comment.deleteMany({ where: { postId: input } })
     await ctx.db.post.delete({ where: { id: input } })
 
-    revalidatePath(`/users/${ctx.session.user.id}`)
+    revalidatePath(`/u/${ctx.session.user.id}`)
     revalidatePath('/')
     return true
   }),
@@ -228,7 +268,28 @@ export const postRouter = trpc.createRouter({
       throw new TRPCError({ message: "You aren't the author of this comment", code: 'FORBIDDEN' })
     await ctx.db.comment.delete({ where: { id: input } })
 
-    revalidatePath(`/post/${comment.postId}`)
+    revalidatePath(`/p/${comment.postId}`)
     return true
+  }),
+
+  deleteImage: trpc.protectedProcedure.input(post.string).mutation(async ({ ctx, input }) => {
+    const post = await ctx.db.post.findUnique({ where: { id: input } })
+    if (!post) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
+
+    if (post.authorId !== ctx.session.user.id)
+      throw new TRPCError({ message: "You aren't the author of this post", code: 'FORBIDDEN' })
+
+    const updatedPost = await ctx.db.post.update({
+      where: { id: input },
+      data: { image: '' },
+    })
+
+    if (!updatedPost) throw new TRPCError({ message: 'Failed to delete image', code: 'INTERNAL_SERVER_ERROR' })
+
+    revalidatePath(`/u/${ctx.session.user.id}`)
+    revalidatePath(`/p/${input}`)
+    revalidatePath('/')
+
+    return post.image
   }),
 })

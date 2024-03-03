@@ -43,6 +43,8 @@ model Post {
 
   likes    Like[]
   comments Comment[]
+
+  @@unique([createdAt, id])
 }
 
 model Like {

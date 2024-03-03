@@ -1,17 +1,22 @@
-import type { Post, User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 
 import UserAvatar from '@/components/user-avatar'
 import { Card } from '../ui/card'
-import LikeBtn from './like-btn'
 import { Skeleton } from '../ui/skeleton'
+import { FakeLikeBtn, LikeBtn } from './like-btn'
 
 export interface PostCardProps {
-  post: Post & {
+  post: {
+    id: string
+    content: string
+    image: string | null
+    createdAt: Date
+    isLiked: boolean
+    likes: number
+    replies: number
     author: User
-    _count: { comments: number; likes: number }
-    isLiked?: boolean
   }
 }
 
@@ -38,10 +43,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
 
       <div className="ml-12 flex text-muted-foreground">
         <LikeBtn post={post} />
-
         <span className="mx-2">•</span>
-
-        <span>{post._count.comments} replies</span>
+        <span>{post.replies} replies</span>
       </div>
     </div>
   </Card>
@@ -69,11 +72,9 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
       </Link>
 
       <div className="ml-12 flex text-muted-foreground">
-        <span>{post._count.likes} likes</span>
-
+        <FakeLikeBtn post={post} />
         <span className="mx-2">•</span>
-
-        <span>{post._count.comments} replies</span>
+        <span>{post.replies} replies</span>
       </div>
     </div>
   </Card>

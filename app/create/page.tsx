@@ -5,19 +5,16 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
+import Image from 'next/image'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { createPost } from '@/server/actions'
 
-interface Error {
-  content?: string
-  image?: string
-}
-
 const Page: NextPage = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
-  const [error, setError] = React.useState<Error>()
+  const [error, setError] = React.useState<{ content?: string }>()
+  const [preview, setPreview] = React.useState<string | null>()
   const action = async (formData: FormData) => {
     const res = await createPost(formData)
     if (res.error) {
@@ -26,6 +23,7 @@ const Page: NextPage = () => {
     }
     formRef.current?.reset()
     setError({})
+    setPreview(null)
     return toast.success(res.message)
   }
   return (
@@ -39,7 +37,22 @@ const Page: NextPage = () => {
           message={error?.content}
         />
 
-        <FormField type="file" name="image" className="flex-grow" accept="image/*" message={error?.image} />
+        <FormField
+          type="file"
+          name="image"
+          className="flex-grow"
+          accept="image/*"
+          onChange={(e: any) => {
+            const file = e.target.files?.[0]
+            if (file) {
+              const reader = new FileReader()
+              reader.onloadend = () => setPreview(reader.result as string)
+              reader.readAsDataURL(file)
+            }
+          }}
+        />
+
+        {preview && <Image src={preview} alt="Preview" width={720} height={360} className="h-auto w-full rounded-md" />}
 
         <PostButton />
       </form>

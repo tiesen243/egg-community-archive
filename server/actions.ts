@@ -84,3 +84,13 @@ export const updatePost = async (formData: FormData) => {
     }
   }
 }
+
+export const deletePost = async (id: string, image: string | null) => {
+  await api.post.delete.mutate(id)
+  image && deleteFile(image)
+}
+
+export const deleteImage = async (id: string) => {
+  const image = await api.post.deleteImage.mutate(id)
+  image && (await deleteFile(image))
+}

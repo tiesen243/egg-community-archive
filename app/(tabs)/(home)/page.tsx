@@ -1,13 +1,13 @@
-import { PostCard, PublicPostCard } from '@/components/post'
-import { api } from '@/lib/trpc/server'
 import type { NextPage } from 'next'
 import Link from 'next/link'
+
+import { PostCard, PublicPostCard } from '@/components/post'
+import { api } from '@/lib/trpc/server'
 
 export const dynamic = 'force-dynamic'
 const Page: NextPage = async () => {
   try {
     const posts = await api.post.getAll.query()
-
     return (
       <main className="container max-w-screen-md flex-grow space-y-4">
         {posts.map((post) => (

@@ -1,5 +1,15 @@
 import { z } from 'zod'
 
+export const infintePostSchema = z.object({
+  limit: z.number().int().positive().default(5),
+  cursor: z
+    .object({
+      id: z.string(),
+      createdAt: z.date(),
+    })
+    .optional(),
+})
+
 export const createSchema = z.object({
   content: z
     .string()
