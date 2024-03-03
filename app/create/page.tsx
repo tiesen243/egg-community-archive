@@ -71,7 +71,7 @@ const PostButton: React.FC = () => {
       <Button type="submit" className="w-full" isLoading={pending}>
         Post
       </Button>
-      <Button type="button" variant="secondary" className="w-full md:hidden" onClick={back}>
+      <Button type="button" variant="secondary" className="w-full md:hidden" disabled={pending} onClick={back}>
         Cancel
       </Button>
     </div>

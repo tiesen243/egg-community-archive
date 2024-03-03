@@ -1,6 +1,5 @@
 'use client'
 
-import { Loader2Icon } from 'lucide-react'
 import type { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
@@ -83,8 +82,7 @@ const SubmitButton: React.FC = () => {
   const { pending } = useFormStatus()
   return (
     <card.CardFooter>
-      <Button type="submit" className="w-full" disabled={pending}>
-        <Loader2Icon className={`mr-2 animate-spin ${pending ? 'block' : 'hidden'}`} />
+      <Button type="submit" className="w-full" isLoading={pending}>
         Save changes
       </Button>
     </card.CardFooter>

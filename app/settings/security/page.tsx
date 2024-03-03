@@ -1,15 +1,15 @@
 'use client'
 
-import DeleteAccount from '@/components/delete-account'
+import type { ChangePasswordSchema } from '@/server/schemas/user'
+import type { NextPage } from 'next'
+import { signOut } from 'next-auth/react'
+import { toast } from 'sonner'
+
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import * as card from '@/components/ui/card'
 import { api } from '@/lib/trpc/client'
-import { ChangePasswordSchema } from '@/server/schemas/user'
-import { Loader2Icon } from 'lucide-react'
-import type { NextPage } from 'next'
-import { signOut } from 'next-auth/react'
-import { toast } from 'sonner'
+import DeleteAccount from './_delete-account'
 
 const Page: NextPage = () => {
   const { mutate, error, isLoading } = api.user.changePass.useMutation({
@@ -41,8 +41,7 @@ const Page: NextPage = () => {
         </card.CardContent>
 
         <card.CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            <Loader2Icon className={`mr-2 animate-spin ${isLoading ? 'block' : 'hidden'}`} />
+          <Button type="submit" className="w-full" isLoading={isLoading}>
             Change Password
           </Button>
         </card.CardFooter>
