@@ -23,6 +23,5 @@ export const CommentCard: React.FC<Props> = ({ comment }) => (
       </div>
     </div>
     <div className="absolute bottom-0 left-5 h-full w-[1px] bg-muted transition-colors group-hover:bg-ring" />
-    <div className="absolute bottom-0 left-5 h-[1px] w-[calc(100%-1.25rem)] bg-muted transition-colors group-hover:bg-ring" />
   </card.Card>
 )
