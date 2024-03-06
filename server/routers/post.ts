@@ -122,6 +122,29 @@ export const postRouter = trpc.createRouter({
     }))
   }),
 
+  getByIdPublic: trpc.publicProcedure.input(post.string).query(async ({ ctx, input }) => {
+    const data = await ctx.db.post.findUnique({
+      where: { id: input },
+      include: {
+        author: true,
+        comments: { orderBy: { createdAt: 'desc' }, include: { author: true } },
+        _count: { select: { comments: true, likes: true } },
+      },
+    })
+    if (!data) throw new TRPCError({ message: 'Post not found', code: 'NOT_FOUND' })
+
+    return {
+      id: data.id,
+      content: data.content,
+      image: data.image,
+      createdAt: data.createdAt,
+      author: data.author,
+      likes: data._count.likes,
+      replies: data._count.comments,
+      comments: data.comments,
+    }
+  }),
+
   getById: trpc.protectedProcedure.input(post.string).query(async ({ ctx, input }) => {
     const data = await ctx.db.post.findUnique({
       where: { id: input },

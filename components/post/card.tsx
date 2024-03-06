@@ -14,7 +14,7 @@ export interface PostCardProps {
     content: string
     image: string | null
     createdAt: Date
-    isLiked: boolean
+    isLiked?: boolean
     likes: number
     replies: number
     author: User
@@ -35,7 +35,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
 
     <div className="flex w-full flex-col">
       <Link href={`/p/${post.id}`} className="p-4 pl-12">
-        <MD text={post.content} className="prose-sm" />
+        <MD text={post.content} className="line-clamp-3" />
 
         {post.image && (
           <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
@@ -65,7 +65,7 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
 
     <div className="flex w-full flex-col">
       <Link href={`/p/${post.id}`} className="p-4 pl-12">
-        <MD text={post.content} className="prose-sm" />
+        <MD text={post.content} className="line-clamp-3" />
 
         {post.image && (
           <Image src={post.image} alt={post.id} width={500} height={200} className="mt-4 h-auto w-full rounded" />
