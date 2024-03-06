@@ -53,7 +53,7 @@ const Page: NextPage<Props> = async ({ params }) => {
             </div>
           </Link>
 
-          <MD text={postDetail.content} />
+          <MD className="prose prose-zinc dark:prose-invert" text={postDetail.content} />
 
           {postDetail.image && (
             <Image src={postDetail.image} alt={postDetail.id} width={1920} height={1080} className="mt-4 rounded" />

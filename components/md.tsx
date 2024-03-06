@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 
 const MD: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => (
@@ -6,7 +5,7 @@ const MD: React.FC<{ text: string; className?: string }> = ({ text, className = 
     components={{
       a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
     }}
-    className={cn('prose prose-zinc dark:prose-invert', className)}
+    className={className}
   >
     {text}
   </ReactMarkdown>
