@@ -1,3 +1,5 @@
+'use server'
+
 import { v2 as cloudinary } from 'cloudinary'
 import mime from 'mime'
 
@@ -7,15 +9,20 @@ cloudinary.config({
   api_secret: process.env.CLD_API_SECRET!,
 })
 
-export const saveFile = async (file: File, folder: 'avatar' | 'post') => {
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = new Uint8Array(arrayBuffer)
-  const base64File = Buffer.from(buffer).toString('base64')
-  const fileMimeType = mime.getType(file.name)
-  const result = await cloudinary.uploader.upload(`data:${fileMimeType};base64,${base64File}`, {
-    folder: `egg-community/${folder}`,
-  })
-  return result.url
+export const saveFile = async (formData: FormData, folder: 'avatar' | 'post') => {
+  const file = formData.get('image') as File
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
+    const base64File = Buffer.from(buffer).toString('base64')
+    const fileMimeType = mime.getType(file.name)
+    const result = await cloudinary.uploader.upload(`data:${fileMimeType};base64,${base64File}`, {
+      folder: `egg-community/${folder}`,
+    })
+    return { url: result.url }
+  } catch (error: any) {
+    return { error: error.message }
+  }
 }
 
 export const deleteFile = async (url: string) => {

@@ -1,3 +1,4 @@
+import { deleteFile } from '@/lib/cloudinary'
 import * as post from '@/server/schemas/post'
 import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
@@ -244,9 +245,10 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedPost) throw new TRPCError({ message: 'Failed to update post', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/u/${ctx.session.user.id}`)
-    revalidatePath(`/p/${input.id}`)
-    revalidatePath('/')
+    if (input.image && post.image) await deleteFile(post.image)
+
+    revalidatePath('/api/trpc/post.getById')
+    revalidatePath('/api/trpc/post.getAll')
     return updatedPost
   }),
 
@@ -264,7 +266,6 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedComment) throw new TRPCError({ message: 'Failed to update comment', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/p/${comment.postId}`)
     return updatedComment
   }),
 
@@ -278,8 +279,9 @@ export const postRouter = trpc.createRouter({
     await ctx.db.comment.deleteMany({ where: { postId: input } })
     await ctx.db.post.delete({ where: { id: input } })
 
-    revalidatePath(`/u/${ctx.session.user.id}`)
-    revalidatePath('/')
+    post.image && (await deleteFile(post.image))
+    revalidatePath('/api/trpc/post.getAll')
+    revalidatePath('/api/trpc/post.getByUser')
     return true
   }),
 
@@ -309,10 +311,8 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedPost) throw new TRPCError({ message: 'Failed to delete image', code: 'INTERNAL_SERVER_ERROR' })
 
-    revalidatePath(`/u/${ctx.session.user.id}`)
-    revalidatePath(`/p/${input}`)
-    revalidatePath('/')
-
-    return post.image
+    post.image && (await deleteFile(post.image))
+    revalidatePath('/api/trpc/post.getById')
+    return true
   }),
 })

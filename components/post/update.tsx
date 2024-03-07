@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormStatus } from 'react-dom'
-import { toast } from 'sonner'
 import Image from 'next/image'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import * as dialog from '@/components/ui/dialog'
-import { deleteImage, updatePost } from '@/server/actions'
+import { saveFile } from '@/lib/cloudinary'
+import { api } from '@/lib/trpc/client'
 
 interface Props {
   id: string
@@ -17,17 +17,32 @@ interface Props {
 }
 
 const UpdatePost: React.FC<Props> = ({ id, content, setOpen }) => {
-  const [error, setError] = useState<{ content?: string }>()
   const [preview, setPreview] = useState<string | null>()
+  const { mutate, error, isLoading } = api.post.update.useMutation({
+    onError: (err) => !err.data?.zodError && toast.error(err.message),
+    onSuccess: () => {
+      setPreview(null)
+      setOpen(false)
+      return toast.success('Post updated')
+    },
+  })
+  const { mutate: deleteImg } = api.post.deleteImage.useMutation({
+    onError: (err) => toast.error(err.message),
+    onSuccess: async () => setOpen(false),
+  })
+
   const action = async (formData: FormData) => {
-    formData.append('id', id)
-    const res = await updatePost(formData)
-    if (res.error) {
-      res.cause ? setError(res.cause) : setError({})
-      return toast.error(res.error)
+    let image: string | undefined
+    if (formData.get('image')) {
+      const { url, error } = await saveFile(formData, 'post')
+      if (error) return toast.error(error)
+      image = url
     }
-    toast.success(res.message)
-    setOpen(false)
+    mutate({
+      id,
+      content: String(formData.get('content')),
+      image,
+    })
   }
 
   return (
@@ -38,7 +53,13 @@ const UpdatePost: React.FC<Props> = ({ id, content, setOpen }) => {
       </dialog.DialogHeader>
 
       <form className="space-y-4" action={action}>
-        <FormField name="content" label="Content" defaultValue={content} multiline message={error?.content} />
+        <FormField
+          name="content"
+          label="Content"
+          defaultValue={content}
+          multiline
+          message={String(error?.data?.zodError?.fieldErrors.content ?? '')}
+        />
         <FormField
           name="image"
           label="Image"
@@ -55,30 +76,18 @@ const UpdatePost: React.FC<Props> = ({ id, content, setOpen }) => {
         />
 
         {preview && <Image src={preview} alt="Preview" width={720} height={360} className="h-auto w-full rounded-md" />}
-        <UpdateButton id={id} setOpen={setOpen} />
+
+        <dialog.DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => deleteImg(id)}>
+            Delete image
+          </Button>
+          <Button type="submit" isLoading={isLoading}>
+            Save changes
+          </Button>
+        </dialog.DialogFooter>
       </form>
     </dialog.DialogContent>
   )
 }
 
 export default UpdatePost
-
-const UpdateButton: React.FC<Props> = ({ id, setOpen }) => {
-  const { pending } = useFormStatus()
-
-  const handleDelete = async () => {
-    await deleteImage(id)
-    setOpen(false)
-  }
-
-  return (
-    <dialog.DialogFooter>
-      <Button type="button" variant="ghost" onClick={handleDelete}>
-        Delete image
-      </Button>
-      <Button type="submit" isLoading={pending}>
-        Save changes
-      </Button>
-    </dialog.DialogFooter>
-  )
-}

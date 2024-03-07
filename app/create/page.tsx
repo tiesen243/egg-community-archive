@@ -1,40 +1,47 @@
 'use client'
 
 import type { NextPage } from 'next'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
-import Image from 'next/image'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
-import { createPost } from '@/server/actions'
+import { saveFile } from '@/lib/cloudinary'
+import { api } from '@/lib/trpc/client'
 
 const Page: NextPage = () => {
-  const formRef = React.useRef<HTMLFormElement>(null)
-  const [error, setError] = React.useState<{ content?: string }>()
   const [preview, setPreview] = React.useState<string | null>()
+  const { back, push } = useRouter()
+  const { mutate, error, isLoading } = api.post.create.useMutation({
+    onError: (err) => !err.data?.zodError && toast.error(err.message),
+    onSuccess: () => {
+      setPreview(null)
+      push('/')
+    },
+  })
   const action = async (formData: FormData) => {
-    const res = await createPost(formData)
-    if (res.error) {
-      res.cause ? setError(res.cause) : setError({})
-      return toast.error(res.error)
+    let image: string | undefined
+    if (formData.get('image')) {
+      const { url, error } = await saveFile(formData, 'post')
+      if (error) return toast.error(error)
+      image = url
     }
-    formRef.current?.reset()
-    setError({})
-    setPreview(null)
-    return toast.success(res.message)
+    mutate({
+      content: String(formData.get('content')),
+      image,
+    })
   }
   return (
     <main className="container max-w-screen-md flex-grow">
-      <form ref={formRef} action={action} className="space-y-4">
+      <form action={action} className="space-y-4">
         <FormField
           name="content"
           placeholder="What's on your mind?"
           className="flex-grow"
           multiline
-          message={error?.content}
+          message={String(error?.data?.zodError?.fieldErrors.content ?? '')}
         />
 
         <FormField
@@ -54,26 +61,17 @@ const Page: NextPage = () => {
 
         {preview && <Image src={preview} alt="Preview" width={720} height={360} className="h-auto w-full rounded-md" />}
 
-        <PostButton />
+        <div className="grid grid-cols-1 gap-4">
+          <Button type="submit" className="w-full" isLoading={isLoading}>
+            Post
+          </Button>
+          <Button type="button" variant="secondary" className="w-full md:hidden" disabled={isLoading} onClick={back}>
+            Cancel
+          </Button>
+        </div>
       </form>
     </main>
   )
 }
 
 export default Page
-
-const PostButton: React.FC = () => {
-  const { pending } = useFormStatus()
-  const { back } = useRouter()
-
-  return (
-    <div className="grid grid-cols-1 gap-4">
-      <Button type="submit" className="w-full" isLoading={pending}>
-        Post
-      </Button>
-      <Button type="button" variant="secondary" className="w-full md:hidden" disabled={pending} onClick={back}>
-        Cancel
-      </Button>
-    </div>
-  )
-}

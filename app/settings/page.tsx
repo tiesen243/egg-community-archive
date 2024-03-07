@@ -5,36 +5,35 @@ import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import * as card from '@/components/ui/card'
-import { updateProfile } from '@/server/actions'
-
-interface Error {
-  name?: string
-  bio?: string
-}
+import { saveFile } from '@/lib/cloudinary'
+import { api } from '@/lib/trpc/client'
 
 const Page: NextPage = () => {
   const { data, status } = useSession()
-  const [error, setError] = useState<Error>({})
+
   const [preview, setPreview] = useState<string | null>()
+  const { mutate, error, isLoading } = api.user.update.useMutation()
   const { refresh } = useRouter()
   if (status === 'unauthenticated') return null
 
   const action = async (formData: FormData) => {
-    const res = await updateProfile(formData)
-    if (res.error) {
-      res.cause ? setError(res.cause) : setError({})
-      return toast.error(res.error)
+    let avt: string | undefined
+    if (formData.get('image')) {
+      const { url, error } = await saveFile(formData, 'avatar')
+      if (error) return toast.error(error)
+      avt = url
     }
-
+    mutate({
+      name: String(formData.get('name')),
+      bio: String(formData.get('bio')),
+      image: avt,
+    })
     refresh()
-    setError({})
-    toast.success(res.message)
   }
   return (
     <card.Card>
@@ -45,8 +44,19 @@ const Page: NextPage = () => {
 
       <form action={action}>
         <card.CardContent className="space-y-4">
-          <FormField name="name" label="Name" defaultValue={data?.user.name} message={error.name} />
-          <FormField name="bio" label="Bio" defaultValue={data?.user.bio ?? ''} message={error.bio} multiline />
+          <FormField
+            name="name"
+            label="Name"
+            defaultValue={data?.user.name}
+            message={String(error?.data?.zodError?.fieldErrors.name ?? '')}
+          />
+          <FormField
+            name="bio"
+            label="Bio"
+            defaultValue={data?.user.bio ?? ''}
+            message={String(error?.data?.zodError?.fieldErrors.bio ?? '')}
+            multiline
+          />
           <FormField
             name="image"
             label="Profile picture"
@@ -70,21 +80,14 @@ const Page: NextPage = () => {
           />
         </card.CardContent>
 
-        <SubmitButton />
+        <card.CardFooter>
+          <Button type="submit" className="w-full" isLoading={isLoading}>
+            Save changes
+          </Button>
+        </card.CardFooter>
       </form>
     </card.Card>
   )
 }
 
 export default Page
-
-const SubmitButton: React.FC = () => {
-  const { pending } = useFormStatus()
-  return (
-    <card.CardFooter>
-      <Button type="submit" className="w-full" isLoading={pending}>
-        Save changes
-      </Button>
-    </card.CardFooter>
-  )
-}
