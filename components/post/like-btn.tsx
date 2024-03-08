@@ -8,14 +8,20 @@ import Link from 'next/link'
 
 export const LikeBtn: React.FC<PostCardProps> = ({ post }) => {
   const { refresh } = useRouter()
-  const { mutate } = api.post.likes.useMutation({
+  const { mutate, isLoading } = api.post.likes.useMutation({
     onSuccess: () => {
       refresh()
     },
   })
   return (
-    <button className="flex gap-2" onClick={() => mutate(post.id)}>
-      <HeartIcon className={post.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'} />
+    <button className="flex gap-2 disabled:cursor-not-allowed" onClick={() => mutate(post.id)} disabled={isLoading}>
+      {isLoading ? (
+        <HeartIcon className={`animate-pulse ${post.isLiked ? 'fill-red-500 text-red-500' : 'fill-muted'}`} />
+      ) : (
+        <HeartIcon
+          className={post.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'}
+        />
+      )}
       {post.likes} {post.likes === 1 ? 'like' : 'likes'}
     </button>
   )
