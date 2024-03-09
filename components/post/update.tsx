@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
@@ -18,11 +19,13 @@ interface Props {
 
 const UpdatePost: React.FC<Props> = ({ id, content, setOpen }) => {
   const [preview, setPreview] = useState<string | null>()
+  const { refresh } = useRouter()
   const { mutate, error, isLoading } = api.post.update.useMutation({
     onError: (err) => !err.data?.zodError && toast.error(err.message),
     onSuccess: () => {
       setPreview(null)
       setOpen(false)
+      refresh()
       return toast.success('Post updated')
     },
   })
