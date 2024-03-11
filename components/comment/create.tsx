@@ -25,7 +25,6 @@ export const CommentPost: React.FC<Props> = ({ postId, authorName, className = '
     onSuccess: () => {
       refresh()
       formRef.current?.reset()
-      toast.success('Comment added')
     },
   })
   return (
@@ -42,6 +41,7 @@ export const CommentPost: React.FC<Props> = ({ postId, authorName, className = '
         placeholder={`Reply to ${authorName}...`}
         className="flex-grow"
         message={String(error?.data?.zodError?.fieldErrors?.comment ?? '')}
+        disabled={isLoading}
       />
       <Button type="submit" size="icon" isLoading={isLoading}>
         <SendHorizonalIcon style={{ display: isLoading ? 'none' : 'block' }} />

@@ -1,4 +1,4 @@
-import { MoreHorizontalIcon } from 'lucide-react'
+import { Edit3Icon, MoreHorizontalIcon, TrashIcon } from 'lucide-react'
 import type { Comment, User } from '@prisma/client'
 
 import * as dropdownMenu from '@/components/ui/dropdown-menu'
@@ -25,20 +25,26 @@ export const CommentMenu: React.FC<Props> = async ({ comment }) => {
         </dropdownMenu.DropdownMenuTrigger>
 
         <dropdownMenu.DropdownMenuContent>
+          <dropdownMenu.DropdownMenuLabel>Comment options</dropdownMenu.DropdownMenuLabel>
+
           <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem>Edit Comment</dropdownMenu.DropdownMenuItem>
+            <dropdownMenu.DropdownMenuItem>
+              <Edit3Icon className="mr-2 size-4" /> Edit Comment
+            </dropdownMenu.DropdownMenuItem>
           </DialogTrigger>
 
-          <dropdownMenu.DropdownMenuItem asChild>
-            <form
-              action={async () => {
-                'use server'
-                await api.post.deleteComment.mutate(comment.id)
-              }}
-            >
-              <button type="submit">Delete Comment</button>
-            </form>
-          </dropdownMenu.DropdownMenuItem>
+          <form
+            action={async () => {
+              'use server'
+              await api.post.deleteComment.mutate(comment.id)
+            }}
+          >
+            <dropdownMenu.DropdownMenuItem asChild>
+              <button type="submit">
+                <TrashIcon className="mr-2 size-4" /> Delete Comment
+              </button>
+            </dropdownMenu.DropdownMenuItem>
+          </form>
         </dropdownMenu.DropdownMenuContent>
       </dropdownMenu.DropdownMenu>
 

@@ -1,14 +1,14 @@
 'use client'
 
-import { MoreHorizontalIcon } from 'lucide-react'
+import { Edit3Icon, MoreHorizontalIcon, Trash2Icon } from 'lucide-react'
+import * as React from 'react'
+import { useRouter } from 'next/navigation'
 
 import UpdatePost from '@/components/post/update'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import * as dropdownMenu from '@/components/ui/dropdown-menu'
-import { PostCardProps } from './card'
-import React from 'react'
 import { api } from '@/lib/trpc/client'
-import { useRouter } from 'next/navigation'
+import { PostCardProps } from '@/components/post'
 
 export const PostMenu: React.FC<PostCardProps> = ({ post }) => {
   const [open, setOpen] = React.useState<boolean>(false)
@@ -24,14 +24,20 @@ export const PostMenu: React.FC<PostCardProps> = ({ post }) => {
         </dropdownMenu.DropdownMenuTrigger>
 
         <dropdownMenu.DropdownMenuContent>
+          <dropdownMenu.DropdownMenuLabel>Post options</dropdownMenu.DropdownMenuLabel>
           <DialogTrigger asChild>
-            <dropdownMenu.DropdownMenuItem>Edit post</dropdownMenu.DropdownMenuItem>
+            <dropdownMenu.DropdownMenuItem>
+              <Edit3Icon className="mr-2 size-4" /> Edit post
+            </dropdownMenu.DropdownMenuItem>
           </DialogTrigger>
-          <dropdownMenu.DropdownMenuItem asChild>
-            <form action={() => mutate(post.id)}>
-              <button>Delete post</button>
-            </form>
-          </dropdownMenu.DropdownMenuItem>
+
+          <form action={() => mutate(post.id)}>
+            <dropdownMenu.DropdownMenuItem asChild>
+              <button className="inline-flex">
+                <Trash2Icon className="mr-2 size-4" /> Delete post
+              </button>
+            </dropdownMenu.DropdownMenuItem>
+          </form>
         </dropdownMenu.DropdownMenuContent>
       </dropdownMenu.DropdownMenu>
 

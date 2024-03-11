@@ -1,25 +1,12 @@
-import type { User } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { PostCardProps } from '@/components/post'
 import UserAvatar from '@/components/user-avatar'
-import MD from '../md'
-import { Card } from '../ui/card'
-import { Skeleton } from '../ui/skeleton'
+import MD from '@/components/md'
+import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { FakeLikeBtn, LikeBtn } from './like-btn'
-
-export interface PostCardProps {
-  post: {
-    id: string
-    content: string
-    image: string | null
-    createdAt: Date
-    isLiked?: boolean
-    likes: number
-    replies: number
-    author: User
-  }
-}
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => (
   <Card className="group border-none">
