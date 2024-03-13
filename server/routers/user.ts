@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 
-import { deleteFile } from '@/lib/cloudinary'
+import { deleteFile, saveFile } from '@/lib/cloudinary'
 import * as user from '@/server/schemas/user'
 import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
@@ -128,13 +128,19 @@ export const userRouter = trpc.createRouter({
   // [PATCH]
   update: trpc.protectedProcedure.input(user.updateSchema).mutation(async ({ ctx, input }) => {
     const { user } = ctx.session
+    let image: string | null = user.image
+    if (input.image) {
+      const { url, error } = await saveFile(input.image, 'avatar')
+      if (error) throw new TRPCError({ message: error, code: 'INTERNAL_SERVER_ERROR' })
+      image = url
+    }
 
     const updatedUser = await ctx.db.user.update({
       where: { id: user.id },
       data: {
         name: input.name ?? user.name,
-        image: input.image !== '' ? input.image : user.image,
         bio: input.bio ?? user.bio,
+        image,
       },
     })
 

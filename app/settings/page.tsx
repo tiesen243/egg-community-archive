@@ -5,12 +5,11 @@ import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import * as card from '@/components/ui/card'
-import { saveFile } from '@/lib/cloudinary'
+import { fileToBase64 } from '@/lib/cloudinary'
 import { api } from '@/lib/trpc/client'
 
 const Page: NextPage = () => {
@@ -22,16 +21,10 @@ const Page: NextPage = () => {
   if (status === 'unauthenticated') return null
 
   const action = async (formData: FormData) => {
-    let avt: string | undefined
-    if (formData.get('image')) {
-      const { url, error } = await saveFile(formData, 'avatar')
-      if (error) return toast.error(error)
-      avt = url
-    }
     mutate({
       name: String(formData.get('name')),
       bio: String(formData.get('bio')),
-      image: avt,
+      image: (formData.get('image') as File).size > 0 ? await fileToBase64(formData) : undefined,
     })
     refresh()
   }

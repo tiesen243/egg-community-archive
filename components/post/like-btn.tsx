@@ -1,18 +1,21 @@
 'use client'
 
-import { HeartIcon } from 'lucide-react'
-import { PostCardProps } from './card'
 import { api } from '@/lib/trpc/client'
-import { useRouter } from 'next/navigation'
+import { HeartIcon } from 'lucide-react'
 import Link from 'next/link'
 
-export const LikeBtn: React.FC<PostCardProps> = ({ post }) => {
+import { PostCardProps } from '@/components/post'
+import { useRouter } from 'next/navigation'
+
+export const LikeBtn: React.FC<PostCardProps> = ({ post, refetch }) => {
   const { refresh } = useRouter()
   const { mutate, isLoading } = api.post.likes.useMutation({
     onSuccess: () => {
+      refetch?.()
       refresh()
     },
   })
+
   return (
     <button className="flex gap-2 disabled:cursor-not-allowed" onClick={() => mutate(post.id)} disabled={isLoading}>
       {isLoading ? (

@@ -14,4 +14,5 @@ export interface PostCardProps {
     replies: number
     author: User
   }
+  refetch?: () => void
 }

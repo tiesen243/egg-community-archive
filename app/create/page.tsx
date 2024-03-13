@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
-import { saveFile } from '@/lib/cloudinary'
+import { fileToBase64 } from '@/lib/cloudinary'
 import { api } from '@/lib/trpc/client'
 
 const Page: NextPage = () => {
@@ -22,15 +22,9 @@ const Page: NextPage = () => {
     },
   })
   const action = async (formData: FormData) => {
-    let image: string | undefined
-    if (formData.get('image')) {
-      const { url, error } = await saveFile(formData, 'post')
-      if (error) return toast.error(error)
-      image = url
-    }
     mutate({
       content: String(formData.get('content')),
-      image,
+      image: (formData.get('image') as File).size > 0 ? await fileToBase64(formData) : undefined,
     })
   }
   return (

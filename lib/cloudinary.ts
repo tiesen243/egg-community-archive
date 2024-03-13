@@ -9,19 +9,21 @@ cloudinary.config({
   api_secret: process.env.CLD_API_SECRET!,
 })
 
-export const saveFile = async (formData: FormData, folder: 'avatar' | 'post') => {
+export const fileToBase64 = async (formData: FormData) => {
   const file = formData.get('image') as File
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = new Uint8Array(arrayBuffer)
+  const base64File = Buffer.from(buffer).toString('base64')
+  const fileMimeType = mime.getType(file.name)
+  return `data:${fileMimeType};base64,${base64File}`
+}
+
+export const saveFile = async (base64: string, folder: 'avatar' | 'post') => {
   try {
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = new Uint8Array(arrayBuffer)
-    const base64File = Buffer.from(buffer).toString('base64')
-    const fileMimeType = mime.getType(file.name)
-    const result = await cloudinary.uploader.upload(`data:${fileMimeType};base64,${base64File}`, {
-      folder: `egg-community/${folder}`,
-    })
+    const result = await cloudinary.uploader.upload(base64, { folder: `egg-community/${folder}` })
     return { url: result.url }
   } catch (error: any) {
-    return { error: error.message }
+    return { error: error.message, url: '' }
   }
 }
 

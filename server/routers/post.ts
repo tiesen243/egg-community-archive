@@ -1,4 +1,4 @@
-import { deleteFile } from '@/lib/cloudinary'
+import { deleteFile, saveFile } from '@/lib/cloudinary'
 import * as post from '@/server/schemas/post'
 import * as trpc from '@/server/trpc'
 import { TRPCError } from '@trpc/server'
@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 export const postRouter = trpc.createRouter({
   // [GET]
-  getPublicContent: trpc.publicProcedure.query(async ({ ctx }) => {
+  getAll: trpc.publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.db.post.findMany({
       include: { author: true, _count: { select: { comments: true, likes: true } } },
       orderBy: { createdAt: 'desc' },
@@ -24,7 +24,7 @@ export const postRouter = trpc.createRouter({
     }))
   }),
 
-  getAll: trpc.protectedProcedure.query(async ({ ctx }) => {
+  getAllWithAuth: trpc.protectedProcedure.query(async ({ ctx }) => {
     const data = await ctx.db.post.findMany({
       include: {
         author: true,
@@ -176,14 +176,20 @@ export const postRouter = trpc.createRouter({
 
   // [POST]
   create: trpc.protectedProcedure.input(post.createSchema).mutation(async ({ ctx, input }) => {
+    let image: string | undefined = undefined
+    if (input.image) {
+      const { url, error } = await saveFile(input.image, 'post')
+      if (error) throw new TRPCError({ message: error, code: 'INTERNAL_SERVER_ERROR' })
+      image = url
+    }
+
     const newPost = await ctx.db.post.create({
-      data: {
-        content: input.content,
-        image: input.image ?? '',
-        author: { connect: { id: ctx.session.user.id } },
-      },
+      data: { content: input.content, image: image, author: { connect: { id: ctx.session.user.id } } },
     })
-    if (!newPost) throw new TRPCError({ message: 'Failed to create post', code: 'INTERNAL_SERVER_ERROR' })
+    if (!newPost) {
+      image && (await deleteFile(image))
+      throw new TRPCError({ message: 'Failed to create post', code: 'INTERNAL_SERVER_ERROR' })
+    }
 
     revalidatePath(`/u/${ctx.session.user.id}`)
     revalidatePath('/')
@@ -223,6 +229,10 @@ export const postRouter = trpc.createRouter({
         },
       })
     }
+
+    revalidatePath('/')
+    revalidatePath(`/p/${input}`)
+    revalidatePath(`/u/${post.authorId}`)
   }),
 
   // [PATCH]
@@ -233,9 +243,16 @@ export const postRouter = trpc.createRouter({
     if (post.authorId !== ctx.session.user.id)
       throw new TRPCError({ message: "You aren't the author of this post", code: 'FORBIDDEN' })
 
+    let image: string | null = post.image
+    if (input.image) {
+      const { url, error } = await saveFile(input.image, 'post')
+      if (error) throw new TRPCError({ message: error, code: 'INTERNAL_SERVER_ERROR' })
+      image = url
+    }
+
     const newData = {
       content: input.content ? input.content : post.content,
-      image: input.image ? input.image : post.image,
+      image: image,
     }
 
     const updatedPost = await ctx.db.post.update({
@@ -245,7 +262,7 @@ export const postRouter = trpc.createRouter({
 
     if (!updatedPost) throw new TRPCError({ message: 'Failed to update post', code: 'INTERNAL_SERVER_ERROR' })
 
-    if (input.image && post.image) await deleteFile(post.image)
+    if (post.image && post.image !== image) await deleteFile(post.image)
 
     revalidatePath('/api/trpc/post.getById')
     revalidatePath('/api/trpc/post.getAll')

@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FakeLikeBtn, LikeBtn } from './like-btn'
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => (
+export const PostCard: React.FC<PostCardProps> = ({ post, refetch }) => (
   <Card className="group border-none">
     <Link href={`/u/${post.author.id}`} className="z-10 flex flex-row items-center gap-2">
       <UserAvatar user={post.author} className="ring-2 ring-muted transition-colors group-hover:ring-ring" />
@@ -30,7 +30,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
       </Link>
 
       <div className="ml-12 flex text-muted-foreground">
-        <LikeBtn post={post} />
+        <LikeBtn post={post} refetch={refetch} />
         <span className="mx-2">•</span>
         <span>{post.replies} replies</span>
       </div>
@@ -68,26 +68,27 @@ export const PublicPostCard: React.FC<PostCardProps> = ({ post }) => (
   </Card>
 )
 
-export const PostCardSkeleton: React.FC = () => (
-  <Card className="border-none">
-    <section className="z-10 flex flex-row items-center gap-2">
-      <Skeleton className="size-10 rounded-full ring-2 ring-muted" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-16" />
-      </div>
-    </section>
+export const PostCardSkeleton: React.FC = () =>
+  Array.from({ length: 10 }).map((_, i) => (
+    <Card key={i} className="border-none">
+      <section className="z-10 flex flex-row items-center gap-2">
+        <Skeleton className="size-10 rounded-full ring-2 ring-muted" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      </section>
 
-    <div className="absolute left-5 h-full w-[1px] bg-muted" />
+      <div className="absolute left-5 h-full w-[1px] bg-muted" />
 
-    <div className="flex w-full flex-col">
-      <div className="p-4 pl-12">
-        <Skeleton className="h-20 w-full" />
-      </div>
+      <div className="flex w-full flex-col">
+        <div className="p-4 pl-12">
+          <Skeleton className="h-20 w-full" />
+        </div>
 
-      <div className="ml-12">
-        <Skeleton className="h-6 w-36" />
+        <div className="ml-12">
+          <Skeleton className="h-6 w-36" />
+        </div>
       </div>
-    </div>
-  </Card>
-)
+    </Card>
+  ))

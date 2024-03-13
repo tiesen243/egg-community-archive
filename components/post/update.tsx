@@ -1,14 +1,14 @@
 'use client'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import * as dialog from '@/components/ui/dialog'
-import { saveFile } from '@/lib/cloudinary'
+import { fileToBase64 } from '@/lib/cloudinary'
 import { api } from '@/lib/trpc/client'
 
 interface Props {
@@ -35,16 +35,10 @@ const UpdatePost: React.FC<Props> = ({ id, content, setOpen }) => {
   })
 
   const action = async (formData: FormData) => {
-    let image: string | undefined
-    if (formData.get('image')) {
-      const { url, error } = await saveFile(formData, 'post')
-      if (error) return toast.error(error)
-      image = url
-    }
     mutate({
       id,
       content: String(formData.get('content')),
-      image,
+      image: (formData.get('image') as File).size > 0 ? await fileToBase64(formData) : undefined,
     })
   }
 
